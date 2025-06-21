@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpcs-baseline version="3.13.2">
+<violation file="tests/Feature/ExampleTest.php" sniff="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" signature="3ce6f95a9a15e196930edca74c38129b8c84f70b"/>
+<violation file="tests/Feature/ExampleTest.php" sniff="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" signature="9166a7b7093b6ef318e436c6b16866e360ab4381"/>
+<violation file="tests/TestCase.php" sniff="SlevomatCodingStandard.Commenting.EmptyComment.EmptyComment" signature="b04c87575186307984db5850cbaa255825673754"/>
+<violation file="tests/TestCase.php" sniff="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" signature="9166a7b7093b6ef318e436c6b16866e360ab4381"/>
+<violation file="tests/Unit/ExampleTest.php" sniff="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" signature="24216e0ef692b3f45090c06b5bbaece071b584d8"/>
+<violation file="tests/Unit/ExampleTest.php" sniff="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" signature="9166a7b7093b6ef318e436c6b16866e360ab4381"/>
+</phpcs-baseline>
+
