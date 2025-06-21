@@ -1,3 +1,8 @@
+/.idea/*
+!/.idea/codeStyles
+!/.idea/fileTemplates
+!/.idea/inspectionProfiles
+
 *.log
 .DS_Store
 .env
@@ -6,7 +11,6 @@
 .phpactor.json
 .phpunit.result.cache
 /.fleet
-/.idea
 /.nova
 /.phpunit.cache
 /.vscode
@@ -22,3 +26,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/certs
+/.php_cs.cache
+/.phpcs-cache
