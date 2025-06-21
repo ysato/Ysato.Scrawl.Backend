@@ -26,9 +26,9 @@ composer *arguments:
     docker run --rm -it -v "$(pwd):/var/www/html" {{ COMPOSER_IMAGE }} composer {{ arguments }}
 
 spectral:
-    @if {{ path_exists("openapi.yaml") }}; then \
+    @if {{ path_exists("./docs/openapi.yaml") }}; then \
         docker run --rm -it -v $(pwd):/tmp -w /tmp \
-        {{ SPECTRAL_IMAGE }} lint openapi.yaml; \
+        {{ SPECTRAL_IMAGE }} lint ./docs/openapi.yaml --ruleset ./docs/.spectral.yaml; \
     else \
         echo "\033[33mwarn\033[0m: No openapi.yaml found, skipping OpenAPI linting."; \
     fi
