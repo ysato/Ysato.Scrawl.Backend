@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Thread;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Thread>
+ * @extends Factory<Thread>
  */
 class ThreadFactory extends Factory
 {
@@ -17,7 +20,11 @@ class ThreadFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => fake()->sentence(),
+            'is_closed' => false,
+            'created_at' => fake()->dateTime(),
+            'last_scratch_created_at' => null,
+            'last_closed_at' => null,
         ];
     }
 }
