@@ -16,10 +16,6 @@
     </UnusedClass>
   </file>
   <file src="tests/Feature/ExampleTest.php">
-    <PropertyNotSetInConstructor>
-      <code><![CDATA[ExampleTest]]></code>
-      <code><![CDATA[ExampleTest]]></code>
-    </PropertyNotSetInConstructor>
     <UnusedClass>
       <code><![CDATA[ExampleTest]]></code>
     </UnusedClass>
