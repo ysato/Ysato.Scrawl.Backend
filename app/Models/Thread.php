@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ThreadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Thread extends Model
 {
-    /** @use HasFactory<\Database\Factories\ThreadFactory> */
+    /** @use HasFactory<ThreadFactory> */
     use HasFactory;
 
     public $timestamps = false;
@@ -36,5 +39,13 @@ class Thread extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return HasMany<Scratch, $this>
+     */
+    public function scratches(): HasMany
+    {
+        return $this->hasMany(Scratch::class);
     }
 }
