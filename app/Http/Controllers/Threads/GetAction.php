@@ -13,29 +13,31 @@ class GetAction extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        $query = Thread::with('user')
-            ->orderBy('created_at', 'desc');
+        $threads = Thread::with('user')
+            ->withCount('scratches')
+            ->orderBy('created_at', 'desc')
+            ->cursorPaginate(perPage: 10);
 
-        // ページネーション
-        $threads = $query->paginate(
-            perPage: $request->integer('per_page', 20),
-            page: $request->integer('page', 1)
-        );
+        $self = null;
+        if ($threads->cursor()) {
+            $self = $request->fullUrlWithQuery(['cursor' => $threads->cursor()->encode()]);
+        }
+
+        $prev = null;
+        if ($threads->previousCursor()) {
+            $prev = $request->fullUrlWithQuery(['cursor' => $threads->previousCursor()->encode()]);
+        }
+
+        $next = null;
+        if ($threads->nextCursor()) {
+            $next = $request->fullUrlWithQuery(['cursor' => $threads->nextCursor()->encode()]);
+        }
 
         return response()->json([
-            'data' => $threads->items(),
-            'meta' => [
-                'current_page' => $threads->currentPage(),
-                'per_page' => $threads->perPage(),
-                'total' => $threads->total(),
-                'last_page' => $threads->lastPage(),
-            ],
-            'links' => [
-                'first' => $threads->url(1),
-                'last' => $threads->url($threads->lastPage()),
-                'prev' => $threads->previousPageUrl(),
-                'next' => $threads->nextPageUrl(),
-            ],
+            'self' => $self,
+            'prev' => $prev,
+            'next' => $next,
+            'items' => $threads->items(),
         ]);
     }
 }
