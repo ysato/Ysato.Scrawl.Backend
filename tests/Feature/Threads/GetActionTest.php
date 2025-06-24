@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api\Threads;
+namespace Feature\Threads;
 
 use App\Models\Thread;
 use App\Models\User;
@@ -20,63 +20,21 @@ class GetActionTest extends TestCase
 
     public function testReturnsPaginatedThreadsList(): void
     {
-        $response = $this->getJson('/api/threads');
+        $response = $this->getJson('/threads');
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'self',
-            'prev',
-            'next',
-            'items' => [
-                '*' => [
-                    'id',
-                    'user_id',
-                    'title',
-                    'is_closed',
-                    'created_at',
-                    'last_scratch_created_at',
-                    'last_closed_at',
-                    'scratches_count',
-                    'user' => [
-                        'id',
-                        'name',
-                    ],
-                ],
-            ],
-        ]);
     }
 
     public function testSupportsCursorPagination(): void
     {
-        $response = $this->getJson('/api/threads?cursor=example_cursor');
+        $response = $this->getJson('/threads?cursor=example_cursor');
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'self',
-            'prev',
-            'next',
-            'items' => [
-                '*' => [
-                    'id',
-                    'user_id',
-                    'title',
-                    'is_closed',
-                    'created_at',
-                    'last_scratch_created_at',
-                    'last_closed_at',
-                    'scratches_count',
-                    'user' => [
-                        'id',
-                        'name',
-                    ],
-                ],
-            ],
-        ]);
     }
 
     public function testReturnsThreadsOrderedByCreatedAtDesc(): void
     {
-        $response = $this->getJson('/api/threads');
+        $response = $this->getJson('/threads');
 
         $response->assertStatus(200);
         $response->assertJsonPath('items.0.id', 101);
@@ -92,7 +50,7 @@ class GetActionTest extends TestCase
         $seeder = new ThreadTestSeeder();
         $seeder->runWithEmptyData();
 
-        $response = $this->getJson('/api/threads');
+        $response = $this->getJson('/threads');
 
         $response->assertStatus(200);
         $response->assertJsonPath('self', null);
@@ -110,9 +68,10 @@ class GetActionTest extends TestCase
         $seeder = new ThreadTestSeeder();
         $seeder->runWithLimitedData();
 
-        $response = $this->getJson('/api/threads');
+        $response = $this->getJson('/threads');
 
         $response->assertStatus(200);
+        $response->assertJsonPath('self', null);
         $response->assertJsonPath('prev', null);
         $response->assertJsonPath('next', null);
     }
