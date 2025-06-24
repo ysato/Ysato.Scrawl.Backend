@@ -8,11 +8,13 @@ use League\OpenAPIValidation\PSR7\Exception\Validation\AddressValidationFailed;
 use League\OpenAPIValidation\PSR7\OperationAddress;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
+use function strtolower;
+
 trait ValidatesOpenApiSpec
 {
     use \Kirschbaum\OpenApiValidator\ValidatesOpenApiSpec;
 
-    protected function validateRequest(SymfonyRequest $request): ?OperationAddress
+    protected function validateRequest(SymfonyRequest $request): OperationAddress|null
     {
         if ($this->shouldSkipRequestValidation()) {
             $psr7Request = $this->getPsr7Factory()->createRequest($request);

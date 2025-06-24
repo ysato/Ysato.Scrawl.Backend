@@ -9,6 +9,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\ValidatesOpenApiSpec;
 
+use function assert;
+use function is_int;
+use function is_string;
+use function str_repeat;
+
 class PostActionTest extends TestCase
 {
     use RefreshDatabase;
@@ -57,7 +62,7 @@ class PostActionTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(
-            ['title' => ['The title field must not be greater than 255 characters.']]
+            ['title' => ['The title field must not be greater than 255 characters.']],
         );
     }
 
