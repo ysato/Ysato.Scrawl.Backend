@@ -8,8 +8,8 @@ use App\Models\Thread;
 use App\Models\User;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Kirschbaum\OpenApiValidator\ValidatesOpenApiSpec;
 use Tests\TestCase;
+use Tests\ValidatesOpenApiSpec;
 
 class GetActionTest extends TestCase
 {
