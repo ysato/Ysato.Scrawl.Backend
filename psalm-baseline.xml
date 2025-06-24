@@ -15,11 +15,6 @@
       <code><![CDATA[Scrawl]]></code>
     </UnusedClass>
   </file>
-  <file src="tests/Feature/ExampleTest.php">
-    <UnusedClass>
-      <code><![CDATA[ExampleTest]]></code>
-    </UnusedClass>
-  </file>
   <file src="tests/Unit/ExampleTest.php">
     <UnusedClass>
       <code><![CDATA[ExampleTest]]></code>
