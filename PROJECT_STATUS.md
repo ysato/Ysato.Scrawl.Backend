@@ -5,7 +5,7 @@
 ### API エンドポイント
 
 - ✅ **GET /api/threads** - cursor-based pagination実装済み
-- ⏳ **POST /api/threads** - 未実装
+- ✅ **POST /api/threads** - スレッド作成API実装済み（OpenAPI準拠、バリデーション完備）
 - ⏳ **PUT /api/threads/{id}** - 未実装
 - ⏳ **DELETE /api/threads/{id}** - 未実装
 - ⏳ **GET /api/threads/{id}** - 未実装
@@ -21,8 +21,9 @@
 
 - ✅ **OpenAPI検証** - Laravel OpenAPI Validator導入済み
 - ✅ **階層型Seeder** - BaseTestSeeder + Trait アーキテクチャ構築済み
-- ✅ **テストクラス** - GET /api/threads の包括的テスト実装済み
+- ✅ **テストクラス** - GET /api/threads + POST /api/threads の包括的テスト実装済み
 - ✅ **品質ゲート** - PHP CodeSniffer, PHPStan, Psalm 通過済み
+- ✅ **OpenAPIバリデーション** - application/problem+json対応によるエラー系も完全準拠
 
 ## 技術スタック確定事項
 
@@ -49,28 +50,38 @@
 
 ## 最新の品質状態
 
-### 最終品質ゲート結果 (2025-06-22)
+### 最終品質ゲート結果 (2025-06-24)
 
 - **PHP CodeSniffer**: ✅ エラーなし
 - **PHPStan**: ✅ エラーなし
-- **Psalm**: ✅ エラーなし
-- **PHPUnit**: ✅ 7テスト通過 (245アサーション)
-- **TelescopeServiceProvider**: ✅ 開発環境限定アクセス設定済み
+- **Psalm**: ✅ エラーなし（ベースライン更新済み）
+- **PHPUnit**: ✅ 10テスト通過 (31アサーション)
+- **OpenAPI準拠**: ✅ 正常系・エラー系ともに完全準拠
 
 ## 直近の課題・注意点
 
 ### 次回セッションの優先事項
 
-1. **POST /api/threads実装** - スレッド作成エンドポイント
-3. **バリデーション実装** - FormRequest クラスの作成
-4. **認証機能** - ユーザー認証システムの実装
+1. **PUT /api/threads/{id}実装** - スレッド更新エンドポイント
+2. **DELETE /api/threads/{id}実装** - スレッド削除エンドポイント  
+3. **GET /api/threads/{id}実装** - 単一スレッド取得エンドポイント
+4. **Scratches関連CRUD** - スクラッチ系エンドポイント実装
+5. **認証機能** - ユーザー認証システムの実装（フロント連携後）
 
 ## 次回セッション開始時の推奨手順
 
 1. `composer tests` で現在の品質状態を確認
-2. GetActionTest.php の配列構文エラーが解決されているか確認
-3. 新機能実装前に4フェーズアプローチで計画立案
+2. 新機能実装前に4フェーズアプローチで計画立案
+3. シングルアクションコントローラー命名規則の継続
 4. 実装後は必ず品質ゲート通過を確認
+
+## 確立された開発パターン
+
+### POST API実装パターン
+- FormRequest（PostRequest）: バリデーション + failedValidation()でproblem+json対応
+- Controller（PostAction）: シングルアクション + 相対URLのLocationヘッダー
+- Test（PostActionTest）: 正常系・バリデーション系・OpenAPI準拠の包括テスト
+- ADR記録: 技術的意思決定の根拠明文化
 
 ## 重要なファイル一覧
 
@@ -83,11 +94,24 @@
 
 ### 実装ファイル
 
+#### Controllers
 - `app/Http/Controllers/Threads/GetAction.php` - スレッド一覧API
+- `app/Http/Controllers/Threads/PostAction.php` - スレッド作成API
+
+#### Models & Database
 - `app/Models/Thread.php` - スレッドモデル (scratches関係含む)
 - `app/Models/Scratch.php` - スクラッチモデル
 - `database/seeders/ThreadTestSeeder.php` - テストデータSeeder
-- `tests/Feature/Api/Threads/GetActionTest.php` - API機能テスト
+
+#### Requests
+- `app/Http/Requests/Threads/PostRequest.php` - スレッド作成バリデーション
+
+#### Tests
+- `tests/Feature/Threads/GetActionTest.php` - スレッド一覧API機能テスト
+- `tests/Feature/Threads/PostActionTest.php` - スレッド作成API機能テスト
+
+#### Documentation
+- `adr/004_location_header_relative_url.md` - Locationヘッダー設計ADR
 
 ---
 
