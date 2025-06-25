@@ -9,6 +9,7 @@
         "laravel/tinker": "^2.10.1"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.23",
         "kirschbaum-development/laravel-openapi-validator": "^1.1",
         "laravel/pail": "^1.2.2",
@@ -26,7 +27,10 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Ysato\\Scrawl\\": "src/"
-        }
+        },
+        "exclude-from-classmap": [
+            "tests/Feature/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
