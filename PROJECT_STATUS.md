@@ -6,9 +6,9 @@
 
 - ✅ **GET /threads** - cursor-based pagination実装済み
 - ✅ **POST /threads** - スレッド作成API実装済み（OpenAPI準拠、バリデーション完備）
-- ⏳ **PUT /threads/{id}** - 未実装
-- ⏳ **DELETE /threads/{id}** - 未実装
-- ⏳ **GET /threads/{id}** - 未実装
+- ✅ **PUT /threads/{id}** - スレッド更新API実装済み（t-wada TDD）
+- ✅ **DELETE /threads/{id}** - スレッド削除API実装済み（t-wada TDD）
+- ✅ **GET /threads/{id}** - 単一スレッド取得API実装済み（ThreadDetail、t-wada TDD）
 - ⏳ **Scratches関連エンドポイント** - 未実装
 
 ### データベース
@@ -21,7 +21,7 @@
 
 - ✅ **OpenAPI検証** - Laravel OpenAPI Validator導入済み
 - ✅ **階層型Seeder** - BaseTestSeeder + Trait アーキテクチャ構築済み
-- ✅ **テストクラス** - GET /threads + POST /threads の包括的テスト実装済み
+- ✅ **テストクラス** - 全Thread CRUD API の包括的テスト実装済み（GET一覧/単一、POST、PUT、DELETE）
 - ✅ **品質ゲート** - PHP CodeSniffer, PHPStan, Psalm 通過済み
 - ✅ **OpenAPIバリデーション** - application/problem+json対応によるエラー系も完全準拠
 
@@ -46,27 +46,27 @@
 - **静的解析**: PHPStan (max level), Psalm (level 1)
 - **コーディング規約**: PSR-12 + Doctrine Coding Standard
 - **テスト**: PHPUnit with OpenAPI validation
-- **開発プロセス**: 4フェーズアプローチ (分析→計画→承認→実装)
+- **開発プロセス**: 4フェーズアプローチ + t-wada TDD (Red→Green→Refactor)
+- **TDD統合**: t-wadaサイクルを4フェーズ実装段階に組み込み
 
 ## 最新の品質状態
 
-### 最終品質ゲート結果 (2025-06-24)
+### 最終品質ゲート結果 (2025-06-25)
 
 - **PHP CodeSniffer**: ✅ エラーなし
 - **PHPStan**: ✅ エラーなし
 - **Psalm**: ✅ エラーなし（ベースライン更新済み）
-- **PHPUnit**: ✅ 10テスト通過 (31アサーション)
+- **PHPUnit**: ✅ 18テスト通過 (80アサーション)
 - **OpenAPI準拠**: ✅ 正常系・エラー系ともに完全準拠
 
 ## 直近の課題・注意点
 
 ### 次回セッションの優先事項
 
-1. **PUT /threads/{id}実装** - スレッド更新エンドポイント
-2. **DELETE /threads/{id}実装** - スレッド削除エンドポイント  
-3. **GET /threads/{id}実装** - 単一スレッド取得エンドポイント
-4. **Scratches関連CRUD** - スクラッチ系エンドポイント実装
-5. **認証機能** - ユーザー認証システムの実装（フロント連携後）
+1. **POST /threads/{threadId}/scratches** - スクラッチ作成エンドポイント
+2. **PUT /threads/{threadId}/scratches/{scratchId}** - スクラッチ更新エンドポイント
+3. **DELETE /threads/{threadId}/scratches/{scratchId}** - スクラッチ削除エンドポイント
+4. **認証機能** - ユーザー認証システムの実装（フロント連携後）
 
 ## 次回セッション開始時の推奨手順
 
@@ -77,11 +77,17 @@
 
 ## 確立された開発パターン
 
-### POST API実装パターン
-- FormRequest（PostRequest）: バリデーション + failedValidation()でproblem+json対応
-- Controller（PostAction）: シングルアクション + 相対URLのLocationヘッダー
-- Test（PostActionTest）: 正常系・バリデーション系・OpenAPI準拠の包括テスト
-- ADR記録: 技術的意思決定の根拠明文化
+### Thread CRUD実装パターン（完成）
+- **POST API**: FormRequest + Controller + LocationヘッダーでOpenAPI準拠
+- **PUT API**: FormRequest + モデルバインディングでバリデーション + 更新
+- **DELETE API**: モデルバインディング + シンプル削除
+- **GET API**: Eager Loadingでリレーション最適化、ThreadDetailスキーマ準拠
+- **共通**: シングルアクションコントローラー、t-wada TDD、品質ゲート必須
+
+### t-wada TDD統合パターン
+- **4フェーズ**: 分析→計画→承認→実装（TDDサイクル内包）
+- **TDDサイクル**: Red（失敗テスト）→Green（最小実装）→Refactor（品質向上）
+- **品質確保**: 各Refactorフェーズで品質ゲート通過必須
 
 ## 重要なファイル一覧
 
@@ -97,6 +103,9 @@
 #### Controllers
 - `app/Http/Controllers/Threads/GetAction.php` - スレッド一覧API
 - `app/Http/Controllers/Threads/PostAction.php` - スレッド作成API
+- `app/Http/Controllers/Threads/Thread/GetAction.php` - 単一スレッド取得API
+- `app/Http/Controllers/Threads/Thread/PutAction.php` - スレッド更新API
+- `app/Http/Controllers/Threads/Thread/DeleteAction.php` - スレッド削除API
 
 #### Models & Database
 - `app/Models/Thread.php` - スレッドモデル (scratches関係含む)
@@ -105,10 +114,14 @@
 
 #### Requests
 - `app/Http/Requests/Threads/PostRequest.php` - スレッド作成バリデーション
+- `app/Http/Requests/Threads/Thread/PutRequest.php` - スレッド更新バリデーション
 
 #### Tests
 - `tests/Feature/Threads/GetActionTest.php` - スレッド一覧API機能テスト
 - `tests/Feature/Threads/PostActionTest.php` - スレッド作成API機能テスト
+- `tests/Feature/Threads/Thread/GetActionTest.php` - 単一スレッド取得API機能テスト
+- `tests/Feature/Threads/Thread/PutActionTest.php` - スレッド更新API機能テスト
+- `tests/Feature/Threads/Thread/DeleteActionTest.php` - スレッド削除API機能テスト
 
 #### Documentation
 - `adr/004_location_header_relative_url.md` - Locationヘッダー設計ADR
