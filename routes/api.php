@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Threads\GetAction;
-use App\Http\Controllers\Threads\PostAction;
-use App\Http\Controllers\Threads\Thread\DeleteAction;
-use App\Http\Controllers\Threads\Thread\GetAction as ThreadGetAction;
-use App\Http\Controllers\Threads\Thread\PutAction;
+use App\Http\Controllers\Threads;
+use App\Http\Controllers\Threads\Thread;
+use App\Http\Controllers\Threads\Thread\Scratches;
 use Illuminate\Support\Facades\Route;
 
 // Threads API
-Route::get('/threads', GetAction::class);
-Route::post('/threads', PostAction::class);
-Route::get('/threads/{thread}', ThreadGetAction::class);
-Route::put('/threads/{thread}', PutAction::class);
-Route::delete('/threads/{thread}', DeleteAction::class);
+Route::get('/threads', Threads\GetAction::class);
+Route::post('/threads', Threads\PostAction::class);
+Route::get('/threads/{thread}', Thread\GetAction::class);
+Route::put('/threads/{thread}', Thread\PutAction::class);
+Route::delete('/threads/{thread}', Thread\DeleteAction::class);
+
+// Scratches API
+Route::post('/threads/{thread}/scratches', Scratches\PostAction::class);
