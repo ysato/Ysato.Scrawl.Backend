@@ -4,11 +4,11 @@
 
 ### API エンドポイント
 
-- ✅ **GET /api/threads** - cursor-based pagination実装済み
-- ✅ **POST /api/threads** - スレッド作成API実装済み（OpenAPI準拠、バリデーション完備）
-- ⏳ **PUT /api/threads/{id}** - 未実装
-- ⏳ **DELETE /api/threads/{id}** - 未実装
-- ⏳ **GET /api/threads/{id}** - 未実装
+- ✅ **GET /threads** - cursor-based pagination実装済み
+- ✅ **POST /threads** - スレッド作成API実装済み（OpenAPI準拠、バリデーション完備）
+- ⏳ **PUT /threads/{id}** - 未実装
+- ⏳ **DELETE /threads/{id}** - 未実装
+- ⏳ **GET /threads/{id}** - 未実装
 - ⏳ **Scratches関連エンドポイント** - 未実装
 
 ### データベース
@@ -21,7 +21,7 @@
 
 - ✅ **OpenAPI検証** - Laravel OpenAPI Validator導入済み
 - ✅ **階層型Seeder** - BaseTestSeeder + Trait アーキテクチャ構築済み
-- ✅ **テストクラス** - GET /api/threads + POST /api/threads の包括的テスト実装済み
+- ✅ **テストクラス** - GET /threads + POST /threads の包括的テスト実装済み
 - ✅ **品質ゲート** - PHP CodeSniffer, PHPStan, Psalm 通過済み
 - ✅ **OpenAPIバリデーション** - application/problem+json対応によるエラー系も完全準拠
 
@@ -62,9 +62,9 @@
 
 ### 次回セッションの優先事項
 
-1. **PUT /api/threads/{id}実装** - スレッド更新エンドポイント
-2. **DELETE /api/threads/{id}実装** - スレッド削除エンドポイント  
-3. **GET /api/threads/{id}実装** - 単一スレッド取得エンドポイント
+1. **PUT /threads/{id}実装** - スレッド更新エンドポイント
+2. **DELETE /threads/{id}実装** - スレッド削除エンドポイント  
+3. **GET /threads/{id}実装** - 単一スレッド取得エンドポイント
 4. **Scratches関連CRUD** - スクラッチ系エンドポイント実装
 5. **認証機能** - ユーザー認証システムの実装（フロント連携後）
 
