@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
                     'errors' => $exception->errors(),
                 ],
                     $exception->status,
+                    ['Content-Type' => 'application/problem+json']
+                );
+        });
+
+        $exceptions->render(function (NotFoundHttpException $exception) {
+            return response()
+                ->json([
+                    'title' => 'Resource not found.',
+                    'status' => $exception->getStatusCode(),
+                    'detail' => 'The requested resource was not found.',
+                ],
+                    $exception->getStatusCode(),
                     ['Content-Type' => 'application/problem+json']
                 );
         });
