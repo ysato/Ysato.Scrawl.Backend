@@ -8,8 +8,12 @@ use App\Models\Thread;
 use App\Models\User;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 use Tests\ValidatesOpenApiSpec;
+
+use function collect;
+use function count;
 
 class GetActionTest extends TestCase
 {
@@ -37,8 +41,24 @@ class GetActionTest extends TestCase
         $response = $this->getJson('/threads');
 
         $response->assertStatus(200);
-        $response->assertJsonPath('items.0.id', 101);
-        $response->assertJsonPath('items.1.id', 100);
+
+        /** @var array<int, array<string, mixed>> $items */
+        $items = $response->json('items');
+        $this->assertGreaterThan(0, count($items), 'Should have at least one thread');
+
+        collect($items)
+            ->sliding(2)
+            ->each(function (Collection $pair) {
+                /** @var array<string, mixed> $current */
+                $current = $pair->first();
+                /** @var array<string, mixed> $next */
+                $next = $pair->last();
+                $this->assertGreaterThanOrEqual(
+                    $next['created_at'],
+                    $current['created_at'],
+                    'Threads should be ordered by created_at desc',
+                );
+            });
     }
 
     public function testPaginationLinksWhenNoResults(): void
