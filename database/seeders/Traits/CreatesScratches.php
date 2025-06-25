@@ -9,18 +9,19 @@ use App\Models\Thread;
 
 trait CreatesScratches
 {
-    protected function createScratches(int $threadId, int $count = 3): void
+    protected function createScratches(Thread $thread, int $count = 3): void
     {
-        Scratch::factory()->count($count)->create([
-            'thread_id' => $threadId,
-        ]);
+        Scratch::factory()
+            ->count($count)
+            ->for($thread)
+            ->create();
     }
 
     protected function createScratchesForAllThreads(): void
     {
         // 既存のスレッドにランダムなスクラッチを追加
         Thread::all()->each(function ($thread) {
-            $this->createScratches($thread->id, rand(0, 5));
+            $this->createScratches($thread, rand(0, 5));
         });
     }
 }

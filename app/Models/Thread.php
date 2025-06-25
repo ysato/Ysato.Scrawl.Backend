@@ -18,12 +18,14 @@ class Thread extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
         'title',
         'is_closed',
-        'created_at',
-        'last_scratch_created_at',
-        'last_closed_at',
+    ];
+
+    protected $attributes = [
+        'is_closed' => false,
+        'last_scratch_created_at' => null,
+        'last_closed_at' => null,
     ];
 
     protected $casts = [
@@ -32,6 +34,15 @@ class Thread extends Model
         'last_scratch_created_at' => 'datetime',
         'last_closed_at' => 'datetime',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Thread $thread): void {
+            $thread->created_at = now();
+        });
+    }
 
     /**
      * @return BelongsTo<User, $this>

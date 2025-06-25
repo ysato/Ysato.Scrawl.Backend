@@ -15,7 +15,6 @@ class Scratch extends Model
     use HasFactory;
 
     protected $fillable = [
-        'thread_id',
         'content',
     ];
 
