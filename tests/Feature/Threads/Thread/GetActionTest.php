@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Feature\Threads\Thread;
 
+use App\Models\Thread;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
-use Tests\ValidatesOpenApiSpec;
-
-use function collect;
+use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 class GetActionTest extends TestCase
 {
@@ -19,20 +18,31 @@ class GetActionTest extends TestCase
 
     protected string $seeder = ThreadTestSeeder::class;
 
+    private function getTestThread(): Thread
+    {
+        $thread = Thread::first();
+        $this->assertNotNull($thread, 'At least one thread should exist from seeder');
+
+        return $thread;
+    }
+
     public function testReturnsThreadDetailSuccessfully(): void
     {
-        $response = $this->getJson('/threads/101');
+        $thread = $this->getTestThread();
+
+        $response = $this->getJson("/threads/{$thread->id}");
 
         $response->assertStatus(200);
 
-        $response->assertJsonPath('id', 101);
-        $response->assertJsonPath('title', 'New Thread');
-        $response->assertJsonPath('is_closed', false);
+        $response->assertJsonPath('id', $thread->id);
+        $response->assertJsonPath('title', $thread->title);
+        $response->assertJsonPath('is_closed', $thread['is_closed']);
 
-        /** @var array<int, array<string, mixed>> $scratches */
-        $scratches = $response->json('scratches');
+        /** @var array<int, array<string, mixed>> $scratchesArray */
+        $scratchesArray = $response->json('scratches');
+        $scratches = new Collection($scratchesArray);
 
-        collect($scratches)
+        $scratches
             ->sliding(2)
             ->each(function (Collection $pair) {
                 /** @var array<string, mixed> $current */

@@ -10,7 +10,7 @@ use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
-use Tests\ValidatesOpenApiSpec;
+use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 use function collect;
 use function count;
