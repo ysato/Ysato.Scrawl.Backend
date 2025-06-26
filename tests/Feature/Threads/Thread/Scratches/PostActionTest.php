@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Feature\Threads\Thread\Scratches;
 
+use App\Models\Thread;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\ValidatesOpenApiSpec;
+use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 use function assert;
 use function is_int;
@@ -20,31 +21,44 @@ class PostActionTest extends TestCase
 
     protected string $seeder = ThreadTestSeeder::class;
 
+    private function getTestThread(): Thread
+    {
+        $thread = Thread::first();
+        $this->assertNotNull($thread, 'At least one thread should exist from seeder');
+
+        return $thread;
+    }
+
     public function testCreatesScratchSuccessfully(): void
     {
-        $requestData = ['content' => 'Test scratch content in Markdown'];
+        $thread = $this->getTestThread();
 
-        $response = $this->postJson('/threads/101/scratches', $requestData);
+        $response = $this->postJson(
+            "/threads/{$thread->id}/scratches",
+            ['content' => 'Test scratch content in Markdown'],
+        );
 
         $response->assertStatus(201);
         $response->assertJsonPath('content', 'Test scratch content in Markdown');
-        $response->assertJsonPath('thread_id', 101);
+        $response->assertJsonPath('thread_id', $thread->id);
 
         $scratchId = $response->json('id');
         assert(is_string($scratchId) || is_int($scratchId));
-        $response->assertHeader('Location', "/threads/101/scratches/$scratchId");
+        $response->assertHeader('Location', "/threads/{$thread->id}/scratches/$scratchId");
 
         $this->assertDatabaseHas('scratches', [
             'content' => 'Test scratch content in Markdown',
-            'thread_id' => 101,
+            'thread_id' => $thread->id,
         ]);
     }
 
     public function testValidationFailsWhenContentMissing(): void
     {
+        $thread = $this->getTestThread();
+
         $response = $this
             ->withoutRequestValidation()
-            ->postJson('/threads/101/scratches', []);
+            ->postJson("/threads/{$thread->id}/scratches", []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['content' => ['The content field is required.']]);
@@ -52,9 +66,10 @@ class PostActionTest extends TestCase
 
     public function testReturns404WhenThreadNotFound(): void
     {
-        $requestData = ['content' => 'Test scratch content'];
-
-        $response = $this->postJson('/threads/999/scratches', $requestData);
+        $response = $this->postJson(
+            '/threads/999/scratches',
+            ['content' => 'Test scratch content'],
+        );
 
         $response->assertStatus(404);
     }

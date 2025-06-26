@@ -7,7 +7,7 @@ namespace Feature\Threads;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\ValidatesOpenApiSpec;
+use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 use function assert;
 use function is_int;
@@ -20,6 +20,8 @@ class PostActionTest extends TestCase
     use ValidatesOpenApiSpec;
 
     protected string $seeder = ThreadTestSeeder::class;
+
+    private const int MAX_TITLE_LENGTH = 255;
 
     public function testCreatesThreadSuccessfully(): void
     {
@@ -54,7 +56,7 @@ class PostActionTest extends TestCase
 
     public function testValidationFailsWhenTitleTooLong(): void
     {
-        $requestData = ['title' => str_repeat('a', 256)];
+        $requestData = ['title' => str_repeat('a', self::MAX_TITLE_LENGTH + 1)];
 
         $response = $this
             ->withoutRequestValidation()

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Feature\Threads\Thread;
 
+use App\Models\Thread;
 use Database\Seeders\ThreadTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\ValidatesOpenApiSpec;
+use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 class PutActionTest extends TestCase
 {
@@ -16,18 +17,26 @@ class PutActionTest extends TestCase
 
     protected string $seeder = ThreadTestSeeder::class;
 
+    private function getTestThread(): Thread
+    {
+        $thread = Thread::first();
+        $this->assertNotNull($thread, 'At least one thread should exist from seeder');
+
+        return $thread;
+    }
+
     public function testUpdatesThreadSuccessfully(): void
     {
-        $requestData = [
+        $thread = $this->getTestThread();
+
+        $response = $this->putJson("/threads/{$thread->id}", [
             'title' => 'Updated Test Thread Title',
             'is_closed' => true,
-        ];
-
-        $response = $this->putJson('/threads/101', $requestData);
+        ]);
 
         $response->assertStatus(204);
         $this->assertDatabaseHas('threads', [
-            'id' => 101,
+            'id' => $thread->id,
             'title' => 'Updated Test Thread Title',
             'is_closed' => true,
         ]);
@@ -35,12 +44,10 @@ class PutActionTest extends TestCase
 
     public function testReturns404WhenThreadNotFound(): void
     {
-        $requestData = [
+        $response = $this->putJson('/threads/999', [
             'title' => 'Updated Title',
             'is_closed' => true,
-        ];
-
-        $response = $this->putJson('/threads/999', $requestData);
+        ]);
 
         $response->assertStatus(404);
         $response->assertHeader('Content-Type', 'application/problem+json');
@@ -48,9 +55,9 @@ class PutActionTest extends TestCase
 
     public function testValidationFailsWhenTitleMissing(): void
     {
-        $requestData = ['is_closed' => true];
+        $thread = $this->getTestThread();
 
-        $response = $this->putJson('/threads/101', $requestData);
+        $response = $this->putJson("/threads/{$thread->id}", ['is_closed' => true]);
 
         $response->assertStatus(422);
         $response->assertJsonPath('errors.title.0', 'The title field is required.');
@@ -58,9 +65,9 @@ class PutActionTest extends TestCase
 
     public function testValidationFailsWhenIsClosedMissing(): void
     {
-        $requestData = ['title' => 'Valid Title'];
+        $thread = $this->getTestThread();
 
-        $response = $this->putJson('/threads/101', $requestData);
+        $response = $this->putJson("/threads/{$thread->id}", ['title' => 'Valid Title']);
 
         $response->assertStatus(422);
         $response->assertJsonPath('errors.is_closed.0', 'The is closed field is required.');
