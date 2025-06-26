@@ -16,8 +16,9 @@ class ThreadTestSeeder extends BaseTestSeeder
     {
         parent::run();
 
-        $this->createStandardThreads();
-        $this->createScratchesForAllThreads();
+        $this->createPaginationTestThreads();
+        $this->assignRandomScratchesToThreads();
+        $this->guaranteeMinimumScratchRequirements();
     }
 
     public function runWithLimitedData(): void

@@ -11,17 +11,23 @@ use function now;
 
 trait CreatesThreads
 {
-    protected function createStandardThreads(): void
+    private const int PAGINATION_THREAD_COUNT = 30;
+    private const int SMALL_THREAD_COUNT = 5;
+    private const int ORDER_TEST_OLD_THREAD_ID = 100;
+    private const int ORDER_TEST_NEW_THREAD_ID = 101;
+    private const int PRIMARY_TEST_USER_ID = 1;
+    private const int DEFAULT_THREAD_COUNT = 10;
+    protected function createPaginationTestThreads(): void
     {
-        $user = User::findOrFail(1);
+        $user = User::findOrFail(self::PRIMARY_TEST_USER_ID);
 
         // 基本的なスレッドセット（30件 - ページネーション発生）
         Thread::factory()
-            ->count(5)
+            ->count(self::SMALL_THREAD_COUNT)
             ->for($user)
             ->create();
         Thread::factory()
-            ->count(25)
+            ->count(self::PAGINATION_THREAD_COUNT - self::SMALL_THREAD_COUNT)
             ->for($user)
             ->create();
 
@@ -29,7 +35,7 @@ trait CreatesThreads
         Thread::factory()
             ->for($user)
             ->create([
-                'id' => 100,
+                'id' => self::ORDER_TEST_OLD_THREAD_ID,
                 'title' => 'Old Thread',
                 'created_at' => now()->subDays(2),
             ]);
@@ -37,7 +43,7 @@ trait CreatesThreads
         Thread::factory()
             ->for($user)
             ->create([
-                'id' => 101,
+                'id' => self::ORDER_TEST_NEW_THREAD_ID,
                 'title' => 'New Thread',
                 'created_at' => now()->subDays(1),
             ]);
@@ -45,11 +51,11 @@ trait CreatesThreads
 
     protected function createLimitedThreads(): void
     {
-        $user = User::findOrFail(1);
+        $user = User::findOrFail(self::PRIMARY_TEST_USER_ID);
 
         // 少数スレッド（5件 - ページネーションなし）
         Thread::factory()
-            ->count(5)
+            ->count(self::SMALL_THREAD_COUNT)
             ->for($user)
             ->create();
     }
@@ -59,9 +65,9 @@ trait CreatesThreads
         // スレッドは作成しない（空データセット用）
     }
 
-    protected function createThreadsDataset(int $count = 10): void
+    protected function createCustomThreadSet(int $count = self::DEFAULT_THREAD_COUNT): void
     {
-        $user = User::findOrFail(1);
+        $user = User::findOrFail(self::PRIMARY_TEST_USER_ID);
 
         Thread::factory()
             ->count($count)
