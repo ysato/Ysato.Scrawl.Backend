@@ -9,7 +9,9 @@
 - ✅ **PUT /threads/{id}** - スレッド更新API実装済み（t-wada TDD）
 - ✅ **DELETE /threads/{id}** - スレッド削除API実装済み（t-wada TDD）
 - ✅ **GET /threads/{id}** - 単一スレッド取得API実装済み（ThreadDetail、t-wada TDD）
-- ⏳ **Scratches関連エンドポイント** - 未実装
+- ✅ **POST /threads/{id}/scratches** - スクラッチ作成API実装済み（t-wada TDD）
+- ✅ **PUT /threads/{id}/scratches/{id}** - スクラッチ更新API実装済み（t-wada TDD）
+- ⏳ **DELETE /threads/{id}/scratches/{id}** - スクラッチ削除API（未実装）
 
 ### データベース
 
@@ -21,7 +23,7 @@
 
 - ✅ **OpenAPI検証** - Laravel OpenAPI Validator導入済み
 - ✅ **階層型Seeder** - BaseTestSeeder + Trait アーキテクチャ構築済み
-- ✅ **テストクラス** - 全Thread CRUD API の包括的テスト実装済み（GET一覧/単一、POST、PUT、DELETE）
+- ✅ **テストクラス** - Thread CRUD + Scratch CU APIの包括的テスト実装済み（25テスト/106アサーション）
 - ✅ **品質ゲート** - PHP CodeSniffer, PHPStan, Psalm 通過済み
 - ✅ **OpenAPIバリデーション** - application/problem+json対応によるエラー系も完全準拠
 
@@ -51,22 +53,22 @@
 
 ## 最新の品質状態
 
-### 最終品質ゲート結果 (2025-06-25)
+### 最終品質ゲート結果 (2025-06-26)
 
 - **PHP CodeSniffer**: ✅ エラーなし
 - **PHPStan**: ✅ エラーなし
 - **Psalm**: ✅ エラーなし（ベースライン更新済み）
-- **PHPUnit**: ✅ 18テスト通過 (80アサーション)
+- **PHPUnit**: ✅ 25テスト通過 (106アサーション)
 - **OpenAPI準拠**: ✅ 正常系・エラー系ともに完全準拠
 
 ## 直近の課題・注意点
 
 ### 次回セッションの優先事項
 
-1. **POST /threads/{threadId}/scratches** - スクラッチ作成エンドポイント
-2. **PUT /threads/{threadId}/scratches/{scratchId}** - スクラッチ更新エンドポイント
-3. **DELETE /threads/{threadId}/scratches/{scratchId}** - スクラッチ削除エンドポイント
-4. **認証機能** - ユーザー認証システムの実装（フロント連携後）
+1. **DELETE /threads/{threadId}/scratches/{scratchId}** - スクラッチ削除エンドポイント（最後のCRUD API）
+2. **認証機能** - ユーザー認証システムの実装（フロント連携後）
+3. **パフォーマンス最適化** - N+1問題対策、キャッシュ戦略
+4. **エラーハンドリング** - 統一エラーレスポンス、ログ記録
 
 ## 次回セッション開始時の推奨手順
 
@@ -106,6 +108,8 @@
 - `app/Http/Controllers/Threads/Thread/GetAction.php` - 単一スレッド取得API
 - `app/Http/Controllers/Threads/Thread/PutAction.php` - スレッド更新API
 - `app/Http/Controllers/Threads/Thread/DeleteAction.php` - スレッド削除API
+- `app/Http/Controllers/Threads/Thread/Scratches/PostAction.php` - スクラッチ作成API
+- `app/Http/Controllers/Threads/Thread/Scratches/PutAction.php` - スクラッチ更新API
 
 #### Models & Database
 - `app/Models/Thread.php` - スレッドモデル (scratches関係含む)
