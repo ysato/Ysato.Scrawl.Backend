@@ -425,4 +425,128 @@ Locationヘッダーの相対URL採用について、RFC 7231を根拠としたA
 
 ---
 
+## セッション5: PUT /threads/{threadId}/scratches/{scratchId}実装とテストコード品質改善
+
+### 実行したタスク
+
+#### 1. PUT スクラッチ更新APIの完全実装（t-wada TDD）
+
+**実際の依頼内容:**
+- t-wada流TDD（Red→Green→Refactor）手法によるPUT API実装
+- 4フェーズ開発アプローチ（分析→計画→承認→実装）の適用
+- OpenAPI仕様駆動開発の実践
+
+**成果物:**
+- `app/Http/Controllers/Threads/Thread/Scratches/PutAction.php` - シングルアクションコントローラー
+- `app/Http/Requests/Threads/Thread/Scratches/PutRequest.php` - content必須バリデーション
+- `tests/Feature/Threads/Thread/Scratches/PutActionTest.php` - 4テストケース（成功・バリデーション・404×2）
+- `routes/api.php` - PUT /threads/{thread}/scratches/{scratch} ルーティング
+
+#### 2. テストコード大幅リファクタリング
+
+**実際の依頼内容:**
+- 複雑すぎるテストコードの簡素化（127行→70行、45%削減）
+- マジックナンバー統一化による保守性向上
+- OpenAPI仕様変更による実装簡素化
+
+**成果物:**
+- `getTestScratch()`ヘルパーメソッドによるテストデータ取得統一
+- Thread系テスト全体でのマジックナンバー統一（Thread ID 101、非存在ID 999）
+- OpenAPI仕様簡素化（全Scratchフィールド必須→contentのみ必須）
+
+#### 3. 階層型Seederシステムの拡張と改善
+
+**実際の依頼内容:**
+- スクラッチ0件スレッドでのテスト失敗問題解決
+- テストデータ保証メソッドの実装
+- Factory使用制限ルールの維持
+
+**成果物:**
+- `database/seeders/Traits/CreatesScratches.php` 
+  - `ensureAtLeastOneThreadHasScratches()`メソッド追加
+  - ランダム性保持とテスト要件保証の両立
+- ADR-002更新：実運用経験に基づく学習事項追記
+
+#### 4. 嵌套URL設計のADR文書化
+
+**実際の依頼内容:**
+- `/threads/{threadId}/scratches/{scratchId}` vs `/scratches/{scratchId}` 設計判断根拠記録
+- Zalando RESTful API Guidelines準拠の技術的根拠明示
+
+**成果物:**
+- `adr/005_nested_resource_url_design.md`
+  - 依存リソースの概念と嵌套URL設計の採用理由
+  - Zalando APIガイドライン準拠の根拠
+  - OpenAPI仕様との整合性確保
+
+#### 5. 命名とSeeder設計の包括的改善
+
+**実際の依頼内容:**
+- ビジネス意図を反映した命名改善
+- 汎用的用語（Data等）の排除
+- マジックナンバーの適切な定数化と計算ベース活用
+
+**成果物:**
+- Seederメソッド名改善（例：`createStandardThreads()` → `createPaginationTestThreads()`）
+- 定数の統一化（`PRIMARY_TEST_USER_ID`, `ORDER_TEST_OLD_THREAD_ID`等）
+- `MAX_TITLE_LENGTH + 1`による保守性の高いバリデーションテスト
+
+#### 6. DRY原則改善検討と最終判断
+
+**実際の依頼内容:**
+- テストコード全体のDRY違反分析
+- 共通定数クラスとヘルパートレイトの実装検討
+- final class vs enum設計判断
+
+**最終成果:**
+- DRY改善の実装後、マジックナンバーとヘルパーメソッド個別定義への回帰
+- テスト用途ではシンプルさを優先する方針確立
+- 過度な抽象化よりも可読性重視の判断
+
+### 重要な学習ポイント
+
+1. **t-wada TDD手法の効果**: Red→Green→Refactorサイクルによる確実な品質確保と段階的実装
+2. **テスト品質の判断基準**: 複雑なテストより仕様準拠を優先し、実装を仕様に合わせる原則
+3. **適切な抽象化レベル**: DRY原則と可読性のバランス、テストコードでのシンプルさ優先
+4. **嵌套URL設計の根拠**: 依存リソースの概念とZalando APIガイドライン準拠による技術判断
+
+### 効率的な再現方法
+
+#### 命令1: t-wada TDDによるPUT API実装
+```
+t-wada流TDD（Red→Green→Refactor）と4フェーズ開発アプローチで、PUT /threads/{threadId}/scratches/{scratchId}エンドポイントを実装してください。OpenAPI仕様駆動を厳守してください。
+```
+
+#### 命令2: テストコード品質改善
+```
+テストコードの複雑さを分析し、OpenAPI仕様変更の影響も考慮してリファクタリングを実行してください。マジックナンバー統一化とヘルパーメソッド活用による保守性向上を図ってください。
+```
+
+#### 命令3: 命名とSeeder設計改善
+```
+CLAUDE.mdの命名規則に従い、汎用的用語を排除してビジネス意図を明確に表現する命名に改善してください。Seederメソッドと定数を含む包括的な見直しを実施してください。
+```
+
+#### 命令4: 技術設計判断のADR記録
+```
+嵌套URL設計について、依存リソースの概念とZalando APIガイドラインを根拠としたADRを作成してください。技術判断の透明性を確保してください。
+```
+
+### アーキテクチャ成熟度
+
+- **TDD手法の確立**: t-wada流TDDによる確実な品質保証プロセス
+- **テスト設計哲学**: 仕様準拠優先、適切な抽象化レベルの判断基準確立
+- **技術判断の透明化**: ADRによる設計根拠記録の継続的実践
+- **命名規則の成熟**: ビジネス意図重視、汎用的用語排除の一貫した適用
+
+### 品質保証実績
+
+- **TDD品質**: ✅ Red→Green→Refactorサイクル完全実行
+- **テストリファクタリング**: ✅ 45%コード削減、保守性向上
+- **API実装**: ✅ PUT スクラッチ更新完全実装
+- **静的解析**: ✅ PHPStan・Psalm・CodeSniffer全通過
+- **テスト**: ✅ 25テスト通過（106アサーション）
+
+---
+
 *このログは今後のセッションで継続的に更新されます。*
