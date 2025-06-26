@@ -8,10 +8,12 @@ use App\Models\User;
 
 trait CreatesUsers
 {
+    private const int PRIMARY_TEST_USER_ID = 1;
+
     protected function createUsers(): void
     {
         User::factory()->create([
-            'id' => 1,
+            'id' => self::PRIMARY_TEST_USER_ID,
             'name' => 'Test User',
         ]);
     }

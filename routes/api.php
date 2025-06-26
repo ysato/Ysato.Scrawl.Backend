@@ -16,3 +16,4 @@ Route::delete('/threads/{thread}', Thread\DeleteAction::class);
 
 // Scratches API
 Route::post('/threads/{thread}/scratches', Scratches\PostAction::class);
+Route::put('/threads/{thread}/scratches/{scratch}', Scratches\PutAction::class);
