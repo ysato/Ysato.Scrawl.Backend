@@ -86,3 +86,42 @@ Accepted
 - Seederは階層化して管理し、依存関係を明確にする
 - テスト環境用の専用Seederを作成し、本番環境との明確な分離を行う
 - テストクラスではSeederを呼び出してテストデータを準備する
+
+### 実運用での学習事項（2025年6月追記）
+
+#### テストデータ保証メソッドの導入
+
+実際の運用で、ランダム性のあるSeederとテストの安定性確保の両立が課題となった。解決策として以下のパターンを採用：
+
+**課題:**
+- Seederで`rand(0, 5)`のようなランダム生成を使用すると、必要なテストデータが存在しない場合がある
+- テスト内でのFactory使用を避けつつ、テスト実行に必要な最低限のデータを保証する必要
+
+**解決策:**
+```php
+// CreatesScratches trait内
+protected function ensureAtLeastOneThreadHasScratches(): void
+{
+    // テスト用：スクラッチを持つスレッドが最低1つ存在することを保証
+    $threadsWithoutScratches = Thread::doesntHave('scratches')->get();
+    
+    if ($threadsWithoutScratches->isNotEmpty()) {
+        $firstThreadWithoutScratches = $threadsWithoutScratches->first();
+        $this->createScratches($firstThreadWithoutScratches, 1);
+    }
+}
+```
+
+**設計原則:**
+1. **意図明確なメソッド名**: テスト用データ保証の目的を明確に表現
+2. **最小限介入**: 既存のランダム性を尊重し、必要最小限のデータのみ保証
+3. **ビジネス現実性**: データがない状態も正常な業務状態として残存
+4. **責任の集約**: テストデータの複雑性をSeederが引き受け、テストコードは簡潔に保つ
+
+**メリット:**
+- **テスト安定性**: ランダムSeederでもテストが確実に実行可能
+- **ルール維持**: Factory使用制限を維持しつつ問題解決
+- **保守性**: テストデータ保証ロジックがSeeder内に集約
+- **スケーラビリティ**: 30テーブル以上の大規模アプリでも適用可能
+
+この経験により、Seeder-Onlyアプローチの有効性と実用性が実証された。
