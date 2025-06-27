@@ -24,7 +24,6 @@
     <!-- Doctrine Coding Standard -->
     <rule ref="./vendor/doctrine/coding-standard/lib/Doctrine/ruleset.xml">
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
-        <exclude name="Squiz.Arrays.ArrayDeclaration.KeySpecified"/>
         <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar"/>
         <exclude name="Squiz.WhiteSpace.LanguageConstructSpacing"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming.SuperfluousPrefix"/>
@@ -36,7 +35,7 @@
         <exclude name="SlevomatCodingStandard.Functions.ArrowFunctionDeclaration.IncorrectSpacesAfterKeyword"/>
     </rule>
 
-    <rule ref="Squiz.Arrays.ArrayDeclaration.KeySpecified">
+    <rule ref="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps">
         <exclude-pattern>tests/Feature</exclude-pattern>
     </rule>
 
