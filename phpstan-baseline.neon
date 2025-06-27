@@ -1,6 +1,36 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Models\\User\:\:getAuthIdentifierName\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getAuthPassword\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getAuthPasswordName\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getRememberToken\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getRememberTokenName\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: app/Models/User.php
+
+		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
