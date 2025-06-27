@@ -24,14 +24,15 @@ class GetActionTest extends TestCase
     {
         parent::setUp();
 
-        // Refactor: 基準時刻を設定（各テストで相対時間を使用）
-        Date::setTestNow('2024-01-01 12:00:00');
+        // Red: 基準時刻を設定（タイムゾーン付きISO形式でPostActionTestと統一）
+        // @link https://github.com/briannesbitt/Carbon/issues/2481
+        Date::setTestNow('2024-01-01T12:00:00+09:00');
     }
 
     #[Override]
     protected function tearDown(): void
     {
-        // Refactor: Date::setTestNow()のクリーンアップ
+        // Red: Date::setTestNow()のクリーンアップ
         Date::setTestNow();
 
         parent::tearDown();
@@ -65,11 +66,18 @@ class GetActionTest extends TestCase
 
         // Assert: 作成したデータが正しく取得できることを検証
         $response->assertStatus(200);
+
+        // Refactor: ThreadListItemの完全検証（OpenAPI仕様準拠）
         $response->assertJsonPath('items.0.id', $thread->id);
         $response->assertJsonPath('items.0.title', $thread->title);
+        $response->assertJsonPath('items.0.is_closed', $thread->is_closed);
+        $response->assertJsonPath('items.0.user_id', $thread->user_id);
+        $response->assertJsonPath('items.0.created_at', $thread->created_at->toIso8601String());
+        $response->assertJsonPath('items.0.last_scratch_created_at', $thread->last_scratch_created_at);
+        $response->assertJsonPath('items.0.last_closed_at', $thread->last_closed_at);
+        $response->assertJsonPath('items.0.scratches_count', 0); // withCount()で取得した値
         $response->assertJsonPath('items.0.user.id', $user->id);
         $response->assertJsonPath('items.0.user.name', $user->name);
-        $response->assertJsonPath('items.0.scratches_count', 0);
     }
 
     public function testThreadsAreOrderedByCreatedAtDesc(): void
