@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## コードエクセレンス原則
+
+このプロジェクトは**コードエクセレンス**を最優先とし、以下の4つの柱に基づいて開発を行います：
+
+### 1. 可読性（Readability）
+- **表現力のある命名**: 意図が明確に伝わる変数名・関数名・クラス名
+- **自己文書化**: コメントに頼らず、コード自体が仕様を表現
+- **適切な抽象化**: 複雑さを隠しつつ本質を明確に表現
+
+### 2. 保守性（Maintainability）
+- **単一責任**: 1つのクラス・関数は1つの責任のみ
+- **疎結合**: モジュール間の依存関係を最小化
+- **変更容易性**: 修正時の影響範囲が限定的
+
+### 3. 堅牢性（Robustness）
+- **防御的プログラミング**: 不正な入力・状態への適切な対応
+- **包括的テスト**: 全ての分岐・エッジケースをカバー
+- **例外安全性**: エラー状況での適切な処理
+
+### 4. 効率性（Efficiency）
+- **パフォーマンス**: 適切なアルゴリズムとデータ構造
+- **リソース管理**: メモリ・I/O・ネットワークの効率的使用
+- **スケーラビリティ**: 負荷増加への対応力
+
 ## プロジェクト概要
 
 Ysato/ScrawlはPHP 8.4とLaravel 12を使用したAPIバックエンドプロジェクトです：
@@ -24,67 +48,30 @@ Ysato.Scrawlは学習・開発ジャーナルプラットフォームです：
 - **公開アクセス**: すべてのコンテンツが公開で閲覧可能
 - **進捗管理**: Open/Closedステータスでプロジェクトの完了状態を管理
 
-プロジェクトは開発依存関係としてysato/catalystを使用し、包括的な品質保証ツールを含んでいます。
+## 開発環境とコマンド
 
-## 開発コマンド
-
-### 主要な開発ワークフロー
+### 主要コマンド
 ```bash
-# 完全な開発環境の起動（サーバー、キュー、ログ）
+# 開発環境起動
 composer dev
 
-# 全テストの実行
+# テスト実行
 composer test
+composer tests  # linting + テスト
 
-# カバレッジ付きテスト実行（xdebug使用）
-composer coverage
+# 品質チェック
+composer lints  # コードスタイル + 静的解析
+composer cs-fix # 自動修正
 
-# カバレッジ付きテスト実行（pcov使用 - より高速）
-composer pcov
-```
-
-### 品質保証
-```bash
-# 全リンティング（コードスタイル + 静的解析）
-composer lints
-
-# リンティングを含む完全なテストスイート
-composer tests
-
-# 個別のQAツール
-composer cs              # PHP CodeSniffer チェック
-composer cs-fix          # PHP CodeSniffer 自動修正
-composer phpmd           # PHP Mess Detector
-composer qa              # PHPStan + Psalm
-```
-
-### API開発
-```bash
-# OpenAPI仕様のリンティング
+# OpenAPI検証
 just spectral
-
-# Laravel開発サーバー起動
-php artisan serve
 ```
 
-### Docker ベース開発
-```bash
-# Dockerイメージのビルド
-just build
-
-# Docker経由でcomposer実行
-just composer install
-just composer require vendor/package
-
-# OpenAPI リンティング
-just spectral
-
-# GitHub Actions をローカルで実行
-just act
-
-# Dockerイメージのクリーンアップ
-just clean
-```
+### 品質保証ツール
+- **PHP CodeSniffer**: PSR-12 + Doctrine Coding Standard
+- **PHPStan**: レベルmax、Laravel拡張使用
+- **Psalm**: エラーレベル1、Laravelプラグイン使用
+- **PHPMD**: app/とsrc/ディレクトリ用設定
 
 ## アーキテクチャ
 
@@ -92,296 +79,25 @@ just clean
 - `app/` - Laravelアプリケーション（Controllers、Models、Providers）
 - `src/` - Ysato\Scrawlパッケージソースコード
 - `tests/` - PHPUnitテスト（FeatureとUnit）
-- `docs/` - ドキュメント（ysato/Ysato.Scrawl.DocsからのGitサブモジュール）
-- `docker/` - 開発ツール用Docker設定
+- `adr/` - アーキテクチャ決定記録
 
 ### データモデル
 - **Users**: ユーザー情報（id, name）
 - **Threads**: スレッド（id, title, status[Open/Closed], timestamps, owner）
 - **Scratches**: スクラッチエントリ（id, Markdownコンテンツ, timestamps, 所属スレッド）
 
-### ユーザー権限
-**登録ユーザー**:
-- 自分のスレッド作成・編集・削除
-- 自分のスクラッチ追加・編集・削除
-- スレッドステータス変更（Open/Closed）
-- 全公開コンテンツ閲覧
-
-**ゲストユーザー**:
-- 全公開コンテンツの閲覧のみ
-
-### テスト戦略
-- **Feature Tests**: `tests/Feature/` - Laravelアプリケーションテスト
-- **Unit Tests**: `tests/Unit/` - パッケージとユーティリティテスト
-- テスト用SQLiteインメモリデータベース使用
-- xdebugまたはpcov経由でカバレッジレポート利用可能
-
-### コード品質設定
-- **PHP CodeSniffer**: PSR-12 + Doctrine Coding Standardとカスタム除外設定
-- **PHPStan**: レベルmaxでLaravel拡張使用
-- **Psalm**: エラーレベル1でLaravelプラグイン使用
-- **PHPMD**: app/とsrc/ディレクトリ用に設定
-- 全ツールにレガシーコード用ベースラインファイル有り
-
-### オートローディング
-- `App\` 名前空間は `app/` にマップ
-- `Ysato\Scrawl\` 名前空間は `src/` にマップ
-- `Tests\` 名前空間は `tests/` にマップ
-
-## 重要な開発ノート
-
-### パッケージ開発
-`src/` ディレクトリには中核となるYsato\Scrawlパッケージが含まれています。パッケージ機能を作業する際は、スタンドアロン使用とLaravel統合の両方で互換性があることを確認してください。
-
-### システム固有の設計原則
-- **公開第一**: すべてのコンテンツはデフォルトで公開（プライベートコンテンツなし）
+### 設計原則
+- **公開第一**: すべてのコンテンツはデフォルトで公開
 - **学習重視**: 学習・開発ジャーナルとしての用途に特化
-- **段階的文書化**: スクラッチシステムによる継続的更新サポート
 - **シンプルな権限**: 所有者のみが自分のコンテンツを管理
 - **RESTful API**: 適切なHTTPメソッドとページネーション対応
 
-### コントローラー設計方針
-このプロジェクトでは**シングルアクションコントローラー**のみを使用します：
+## 開発プロセス（必須遵守事項）
 
-#### 基本ルール
-- **リソースコントローラーは使用しない**
-- **`__invoke()` メソッド**を使用したシングルアクションコントローラー
-- **クラス名**: `〜Action` で終わる（例: `GetAction`, `PostAction`）
-- **ディレクトリ構造**: URL構造をそのまま反映
+### t-wada流TDD（テスト駆動開発）- 必須実施
+**全ての機能実装はt-wada流TDDに従って行うこと。例外は認めない。**
 
-#### ディレクトリ・ファイル構造
-URLパスとHTTPメソッドをディレクトリ構造とファイル名に直接対応：
-
-```
-URL: GET /threads/{id}
-→ app/Http/Controllers/Threads/Thread/GetAction.php
-
-URL: GET /threads/{threadId}/scratches  
-→ app/Http/Controllers/Threads/Thread/Scratches/GetAction.php
-
-URL: POST /threads
-→ app/Http/Controllers/Threads/PostAction.php
-
-URL: PUT /threads/{id}
-→ app/Http/Controllers/Threads/Thread/PutAction.php
-
-URL: DELETE /threads/{id}
-→ app/Http/Controllers/Threads/Thread/DeleteAction.php
-```
-
-#### 命名規則
-- **HTTPメソッド → ファイル名**: `Get`, `Post`, `Put`, `Delete` + `Action`
-- **パスパラメータ → ディレクトリ**: `{id}`, `{threadId}` → `Thread/`（単数形）
-- **リソース名 → ディレクトリ**: `threads` → `Threads/`、`scratches` → `Scratches/`
-
-# Code Quality Principles
-
-すべてのコード変更において、以下の原則を常に考慮すること：
-
-## 保守性 (Maintainability)
-- コードの意図が明確で理解しやすい
-- 責任が適切に分離されている
-- 命名が一貫性があり意味が明確
-- 重複が最小化されている
-
-## 拡張性 (Extensibility)
-- 新機能追加時に既存コードの変更が最小限
-- インターフェースや抽象化を適切に活用
-- 設定や振る舞いがカスタマイズ可能
-- オープン/クローズド原則に従っている
-
-## テスト容易性 (Testability)
-- 依存関係が注入可能
-- 副作用が最小化されている
-- 単一責任の原則に従っている
-- モック・スタブが作成しやすい
-
-## 設計原則への意識
-
-以下の設計原則を常に意識すること（必ずしも厳密に守る必要はないが、トレードオフを理解した上で判断する）：
-
-- **KISS (Keep It Simple, Stupid)**: シンプルで理解しやすい解決策を選ぶ
-- **DRY (Don't Repeat Yourself)**: 重複を避け、知識を一箇所に集約する
-- **YAGNI (You Aren't Gonna Need It)**: 現在必要でない機能は実装しない
-- **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転
-
-## コーディングスタイル
-
-### フォーマットルール
-- **return文の前には必ず1行空ける** - ただし、メソッドがreturn文1行のみの場合はこの限りではない
-
-### テストデータ作成
-- **階層型Seeder + トレイト方式を採用**
-- **テストコード内でのFactory直接使用は禁止** - FactoryはSeeder内でのみ使用可能
-- **BaseTestSeeder**: 共通データ（User、基本設定等）を作成
-- **機能別TestSeeder**: 特定機能のテストデータを作成（ThreadTestSeeder等）
-- **トレイト**: 再利用可能なデータ作成ロジック（CreatesUsers、CreatesThreads等）
-
-#### 構造例
-```php
-BaseTestSeeder (共通データ)
-├── ThreadTestSeeder (スレッド関連テスト)
-└── [機能別Seeder]
-
-トレイト:
-├── CreatesUsers - ユーザー作成ロジック
-├── CreatesThreads - スレッド作成ロジック
-└── CreatesScratches - スクラッチ作成ロジック
-```
-
-#### 使用方法
-```php
-// 標準データセット
-protected string $seeder = ThreadTestSeeder::class;
-
-// 特別なデータパターンが必要な場合
-$seeder = new ThreadTestSeeder();
-$seeder->runWithLimitedData(); // 少数データ
-$seeder->runWithEmptyData();   // 空データ
-```
-
-#### 利点
-- **スケーラブル**: 30テーブル以上でも管理可能
-- **再利用性**: トレイトで共通ロジック共有
-- **保守性**: 階層化により依存関係が明確
-- **柔軟性**: メソッド呼び出しでデータパターン変更可能
-
-### テスト実行ルール
-- **品質ゲート実行時にエラーが出た場合、必ずユーザーに対処方法を確認する**
-- 「一般的で無害」と判断せず、必ずユーザーに選択肢を提示して承認を得る
-- **データベース関連テストは必ず2回実行してIDなどのマジックナンバー問題を検証**
-- 2回とも成功することでテストデータの一貫性とIDの重複問題がないことを確認
-- **分岐網羅テストの実装**
-- 実装コードに条件分岐（if文、三項演算子など）がある場合、すべての分岐パターンをテストケースで網羅する
-- 各分岐の真偽両方の条件でテストを作成し、実行パスを完全にカバーする
-
-### テストコードのマジックナンバールール
-テストにおけるマジックナンバーの使用には適切な線引きを行う：
-
-#### 許容されるマジックナンバー
-- **テスト仕様に直結する値**: HTTPステータス、期待される順序など
-  ```php
-  $response->assertStatus(200);  // HTTP仕様の一部
-  $response->assertJsonPath('items.0.id', 101);  // テストの期待値
-  ```
-- **小さな制御値**: テストのコンテキスト内で意味が明確な値
-  ```php
-  Thread::factory()->count(5)->create();  // 少数データのテスト
-  ```
-- **業界標準・慣習的な値**: HTTP標準、相対日付など
-
-#### 定数化すべきマジックナンバー
-- **複数箇所で使用される値**: 再利用される設定値
-  ```php
-  private const TEST_USER_ID = 1;
-  'user_id' => self::TEST_USER_ID
-  ```
-- **ビジネスロジックに関わる値**: ドメイン固有の制約や閾値
-  ```php
-  private const PAGINATION_THRESHOLD = 10;
-  ```
-- **計算の根拠となる値**: なぜその値なのか説明が必要な数値
-
-#### 判断基準
-**許容基準**: テストの意図が明確、局所性、変更頻度が低い、コンテキストで理解可能
-**定数化基準**: 再利用性、ビジネス意味、設定的性質、計算根拠が必要
-
-### テスト品質ルール
-- **テストを簡単にしてテストケースを通す行為は禁止**
-- OpenAPI仕様やAPIレスポンスに合わせてテストを修正し、仕様準拠を維持する
-- テストの期待値を下げることで成功させるのではなく、実装を仕様に合わせる
-- テストは仕様の忠実な検証者として機能させる
-
-### 仕様変更時の開発フロー
-**OpenAPI仕様変更時の対応順序（厳守）:**
-1. **OpenAPI仕様は絶対に変更しない** - 開発者間で決められた仕様のため
-2. **テストコードをOpenAPI仕様に合わせて修正** - 仕様準拠テストに更新
-3. **実装コードを修正してテストを通るようにする** - テスト駆動で実装修正
-4. **品質ゲートの通過確認** - 全ツールでエラーなしを確認
-
-**原則**: 仕様 → テスト → コード の順序で修正し、仕様を起点とした開発を徹底する
-
-```php
-// ✅ Good: return文の前に空行
-public function process(): string
-{
-    $result = $this->doSomething();
-    $processed = $this->transform($result);
-    
-    return $processed;
-}
-
-// ✅ Good: 1行のみのreturnは空行不要
-public function getId(): string
-{
-    return $this->id;
-}
-
-// ❌ Bad: return文の前に空行がない
-public function calculate(): int
-{
-    $value = $this->getValue();
-    return $value * 2;
-}
-```
-
-### 命名規則
-
-クラス、メソッド、変数を命名する際は、明確性と具体性を優先する：
-
-- **過度に汎用的な用語を避ける** - `Manager`, `Processor`, `Handler`, `Service`, `Utility` 等は、それが具体的な責任を正確に表現する場合のみ使用
-- **ドメイン固有の用語を使用** - 実際のビジネスロジックや技術的文脈を反映した用語を選択
-- **具体的なアクションと責任を表現** - 抽象的な概念よりも具体的な機能を示す
-- **長い名前を恐れない** - 意図を明確に伝えられるなら長い名前でも良い
-- **適切な場合は動作動詞を含める** - `Calculator`, `Validator`, `Builder`, `Parser` など
-
-**例:**
-- ✅ `SessionManager` - セッション管理、責任が明確
-- ✅ `RuntimeStubGenerator` - 実行時にスタブを生成
-- ❌ `DataProcessor` - 汎用的すぎ、どんな処理か不明
-- ❌ `FileHandler` - 曖昧、ファイルに何をするのか不明
-
-クラス名がドキュメントとして機能することを目指す - 開発者が名前だけで目的を理解できるように。
-
-## 開発ワークフロー
-
-### コード変更完了時の必須手順
-**重要:** 任意のコード変更を完了した際は、必ず以下を実行してください：
-
-1. `just tests` - lint、QA、テストを実行する統合コマンド
-2. エラーが発生した場合は修正してから完了とする
-
-### 開発プロセス
-このプロジェクトでは**4フェーズ開発アプローチ + t-wada流TDD**を採用します：
-
-#### フェーズ1: 現状分析
-**目的**: 変更要求の全体像を正確に把握する
-- 変更されたOpenAPI仕様・要件の詳細確認
-- 現在のテストコード・実装コードの状態確認
-- **既存ドキュメントの確認**: ADR、README、技術ドキュメントの重複チェック
-- 不足しているモデル・リレーション・依存関係の特定
-- 影響範囲の特定（テスト、コントローラー、モデル等）
-- 制約条件の確認（CLAUDE.mdルール、既存アーキテクチャ等）
-
-#### フェーズ2: 計画策定
-**目的**: 効率的で網羅的な実装計画を作成する
-- 必要な修正・追加項目をすべてリストアップ
-- 依存関係を考慮した実装順序の決定
-- テスト戦略の策定（分岐網羅、データパターン等）
-- 各フェーズの成功基準の明確化
-- リスク要因と対応策の検討
-
-#### フェーズ3: ユーザー承認
-**目的**: 計画の妥当性を確認し、実装方針に合意を得る
-- 計画全体をユーザーに提示
-- 想定される課題と解決方針の説明
-- ユーザーからの明示的な承認を得る
-- **承認なしには絶対に実装を開始しない**
-
-#### フェーズ4: 実装実行（t-wada流TDD採用）
-**目的**: 承認された計画に従ってt-wada流TDDで確実に実装する
-
-**t-wada流TDDサイクル:**
+#### TDDサイクル（厳格遵守）
 1. **Red**: 失敗するテストを書く
    - 仕様を明確にするテストを作成
    - 実装が存在しない状態で期待値を定義
@@ -390,86 +106,135 @@ public function calculate(): int
 2. **Green**: 最小実装でテストを通す
    - テストを通すための最小限の実装
    - 完璧を目指さず、まずは動作させる
-   - 品質は後のRefactorで向上
+   - 品質は後のRefactorフェーズで向上
 
 3. **Refactor**: コード品質を向上
    - 重複排除、可読性向上、設計改善
    - テストが通ることを確認しながら改善
-   - 品質ゲート（composer tests）の通過確認
+   - Martin Fowlerリファクタリング原則に従う
 
-**TDD実装原則:**
-- **仕様駆動**: テストを仕様に合わせ、実装を仕様準拠させる
-- **テストを簡単にしない**: 実装を仕様に合わせてテストを通す
-- **段階的実装**: Red→Green→Refactorを複数サイクル繰り返す
-- **OpenAPI準拠**: 全エラーレスポンスもapplication/problem+json準拠
+#### 4フェーズ開発プロセス
+1. **分析**: 要求と現状の把握
+2. **計画**: TDD実装方針の策定
+3. **承認**: ユーザーからの明示的承認
+4. **TDD実装**: Red→Green→Refactorの厳格実施
 
-**協業メリット:**
-- 進捗の可視化（現在のRed/Green/Refactor状態が明確）
-- 品質保証（各段階で確実な前進）
-- 仕様準拠（OpenAPI等の外部仕様との整合性確保）
+### Martin Fowlerリファクタリング原則
+- **Small Steps**: 小さなステップで安全に進める
+- **Test-Driven**: テストが保証する安全なリファクタリング
+- **Refactor Mercilessly**: 設計を継続的に改善
+- **Keep It Working**: 常に動作する状態を保つ
 
-#### 重要な原則
-- **手戻り最小化**: フェーズ1・2で十分な分析と計画を行い、実装での手戻りを防ぐ
-- **全体最適**: 部分的な修正ではなく、システム全体の整合性を考慮した解決策を採用
-- **透明性確保**: 各フェーズでユーザーに進捗と判断根拠を明確に伝える
+### TDD品質指標
+- **分岐網羅率**: 100%達成必須
+- **テスト先行**: 実装前にテストが存在することを確認
+- **OpenAPI準拠**: `ValidatesOpenApiSpec`による自動検証
+- **2回実行**: データベース関連テストは必ず2回実行してIDの一意性確認
 
-### コーディングルール
-- **コメントアウト禁止**: コードの修正でコメントアウトを使用しない
-- **削除原則**: 不要なコードは完全に削除する
-- **一時的無効化**: コメントアウトは削除すべきコードの一時的な目印としてのみ使用
+### 品質ゲート（必須実施）
+**コード変更完了時は必ず `composer tests` を実行**
+- エラーが発生した場合は必ずユーザーに確認を取る
+- 全てのテストが通るまで実装完了とは認めない
 
-### 品質ゲート
-コミット前には必ず `composer tests` を実行してください。これはリンティング（コードスタイル + 静的解析）とテストの両方を実行し、プロジェクトは最高レベルで厳格なコーディング標準と静的解析を強制します。
+## アーキテクチャ規約
 
-### API設計
-- OpenAPI仕様ファイル (`openapi.yaml`) でAPI定義
-- Spectralを使用したOpenAPI仕様のリンティング
-- ドキュメントは `./docs` にGitサブモジュールとして配置
-- フロントエンドはNext.jsを使用した別リポジトリ
+### シングルアクションコントローラー
+- **`__invoke()` メソッド**のみ使用
+- **クラス名**: `〜Action` で終わる（例: `GetAction`, `PostAction`）
+- **ディレクトリ構造**: URL構造をそのまま反映
 
-### Docker統合
-異なるシステム間で一貫したPHP/Composer環境のため、コンテナ化された開発ワークフローには `just` コマンドを使用してください。
+#### 命名例
+```
+URL: GET /threads/{id}
+→ app/Http/Controllers/Threads/Thread/GetAction.php
 
-## 開発プロセス重要事項
+URL: POST /threads
+→ app/Http/Controllers/Threads/PostAction.php
+```
 
-**実装前の必須確認:**
-- **絶対に実装まで進めずに、まずは計画を立てる**
-- **計画段階で必ずユーザーに確認を取る**
-- 問題分析、解決方針、具体的な実装手順を明確にしてからユーザー承認を得る
-- ユーザーの明示的な承認なしに実装作業（ファイル作成・編集）を開始しない
+### Factory-Firstテストデータ戦略
+- **ファクトリ**: テスト固有の動的データ（約95%）
+- **シーダー**: 静的なマスターデータのみ（約5%）
+- **OpenAPI検証**: `ValidatesOpenApiSpec` による自動検証
 
-**README同期ルール:**
-- **片方のREADME（README.md または README-ja.md）を更新したら、必ずもう一方も対応する更新を行う**
-- 内容の一貫性を保つため、両方のREADMEは常に同期させる
-- 一方のみの更新は禁止
+## コーディング規約
 
-**開発履歴記録ルール:**
-- **重要なタスクや機能実装を完了した際は、必ず `./history.md` に記録を追記する**
-- 記録内容：実際の依頼内容、成果物、学習ポイント
-- チームメンバーとの共有と再現性確保のため継続的に更新
-- 効率的な再現方法も含めて記述する
+### フォーマットルール
+```php
+// ✅ return文の前に空行
+public function process(): string
+{
+    $result = $this->doSomething();
+    
+    return $result;
+}
 
-## アーキテクチャ決定記録（ADR）
+// ✅ 1行のみの場合は空行不要
+public function getId(): string
+{
+    return $this->id;
+}
+```
 
-### 作成ルール
-- ファイル名: `001_タイトル.md` 形式で連番プレフィックスを付与
+### 禁止事項
+- コメントアウトによる修正（削除原則）
+- リソースコントローラーの使用
+- テストでのSeeder乱用
+
+### コードエクセレンス実装例
+```php
+// ✅ コードエクセレンス原則に従った実装
+class CreateThreadAction
+{
+    public function __invoke(CreateThreadRequest $request): JsonResponse
+    {
+        // TDDで先にテストを書いてから実装
+        $thread = $this->threadService->createThread(
+            userId: $request->user()->id,
+            title: $request->validated('title'),
+            initialContent: $request->validated('content')
+        );
+        
+        return new JsonResponse($thread, 201);
+    }
+}
+
+// ✅ 対応するテスト（実装前に作成）
+public function testCanCreateThreadWithValidData(): void
+{
+    // Red: 失敗するテストを最初に書く
+    $user = User::factory()->create();
+    
+    $response = $this->actingAs($user)->post('/threads', [
+        'title' => 'Learning Laravel',
+        'content' => 'Starting my Laravel journey'
+    ]);
+    
+    $response->assertStatus(201);
+    $this->assertDatabaseHas('threads', [
+        'title' => 'Learning Laravel',
+        'user_id' => $user->id
+    ]);
+}
+```
+
+## 重要事項（絶対遵守）
+
+### TDD実装の絶対条件
+- **テストファースト**: 実装コードより先にテストを書く
+- **Red-Green-Refactor**: このサイクルを厳格に守る
+- **例外禁止**: TDDを飛ばした実装は一切認めない
+
+### 実装前の必須確認
+- **計画策定**: 実装方針をTDDサイクルで計画
+- **ユーザー承認**: 明示的な承認なしに実装開始禁止
+- **品質確認**: `composer tests` 通過まで完了とは認めない
+
+### ADR（アーキテクチャ決定記録）
+- ファイル名: `001_タイトル.md` 形式で連番プレフィックス
 - 配置場所: `./adr/` ディレクトリ
-- ファイル名は adr ディレクトリ内でユニークとなるようにする
+- 重要な技術判断は必ずADRとして記録
 
-### テンプレート構成
-各ADRは以下の構成要素を含む：
+---
 
-1. **概要** - 決定事項の要約
-2. **課題** - なぜその問題に取り組むのかを明確に説明
-3. **決定事項** - アーキテクチャの方向性を明確に示す
-4. **ステータス** - Proposed/Accepted/Rejected/Deprecated/Superseded
-5. **詳細**
-    - 前提 - 前提条件を明確に記述
-    - 制約 - 環境上の制約や追加の制約を記載
-    - 検討した選択肢 - 検討した選択肢を具体的に列挙
-
-### 記述ガイドライン
-- 簡潔で明確な記述を心がける
-- 他者の意見も考慮した内容とする
-- 信頼性の高い意思決定記録を目指す
-- 最小限の問題のみ文書化する
+**重要**: 実装前は必ず計画を立て、ユーザー承認を得てから作業を開始すること
