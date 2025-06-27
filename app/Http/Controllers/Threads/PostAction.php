@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Threads;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Threads\PostRequest;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PostAction extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(PostRequest $request): JsonResponse
     {
-        $this->validateRequest($request);
-
         $user = $request->user();
         assert($user instanceof User);
         $thread = $this->createThread($user, $request);
@@ -23,20 +21,14 @@ class PostAction extends Controller
         return $this->buildCreatedResponse($thread);
     }
 
-    private function createThread(User $user, Request $request): Thread
+    private function createThread(User $user, PostRequest $request): Thread
     {
         return $user->threads()->create([
-            'title' => $request->input('title'),
+            'title' => $request->validated('title'),
             'is_closed' => false,
         ]);
     }
 
-    private function validateRequest(Request $request): void
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-        ]);
-    }
 
     private function buildCreatedResponse(Thread $thread): JsonResponse
     {
