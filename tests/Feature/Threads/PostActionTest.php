@@ -20,6 +20,8 @@ class PostActionTest extends TestCase
     use RefreshDatabase;
     use ValidatesOpenApiSpec;
 
+    private User $user;
+
     #[Override]
     protected function setUp(): void
     {
@@ -28,6 +30,10 @@ class PostActionTest extends TestCase
         // Red: 基準時刻を設定（タイムゾーン付きISO形式）
         // @link https://github.com/briannesbitt/Carbon/issues/2481
         Date::setTestNow('2024-01-01T12:00:00+09:00');
+
+        /** @psalm-var User $user */
+        $user = User::factory()->create();
+        $this->user = $user;
     }
 
     #[Override]
@@ -42,14 +48,10 @@ class PostActionTest extends TestCase
     public function testCanCreateThreadWithValidData(): void
     {
         // Arrange: Factory-Firstでユーザーを作成し、有効なリクエストデータを準備
-        // TODO: 認証システム実装後、user_id=1固定を削除
-        /** @psalm-var User $user */
-        $user = User::factory()->create(['id' => 1]);
-        $this->assertInstanceOf(User::class, $user);
         $requestData = ['title' => 'テスト用スレッドタイトル'];
 
         // Act: スレッド作成APIを実行
-        $response = $this->postJson('/threads', $requestData);
+        $response = $this->actingAs($this->user)->postJson('/threads', $requestData);
 
         // Assert: スレッドが正常に作成されることを検証
         $response->assertStatus(201);
@@ -60,7 +62,7 @@ class PostActionTest extends TestCase
         $response->assertJsonPath('id', $threadId);
         $response->assertJsonPath('title', 'テスト用スレッドタイトル');
         $response->assertJsonPath('is_closed', false);
-        $response->assertJsonPath('user_id', 1);
+        $response->assertJsonPath('user_id', $this->user->id);
         $response->assertJsonPath('created_at', '2024-01-01T12:00:00+09:00');
         $response->assertJsonPath('last_scratch_created_at', null);
         $response->assertJsonPath('last_closed_at', null);
@@ -73,7 +75,7 @@ class PostActionTest extends TestCase
             'id' => $threadId,
             'title' => 'テスト用スレッドタイトル',
             'is_closed' => false,
-            'user_id' => 1,
+            'user_id' => $this->user->id,
             'created_at' => '2024-01-01T12:00:00+09:00',
             'last_scratch_created_at' => null,
             'last_closed_at' => null,
@@ -82,14 +84,13 @@ class PostActionTest extends TestCase
 
     public function testValidationErrorWhenTitleIsMissing(): void
     {
-        // Arrange: Factory-Firstでユーザーを作成し、無効なリクエストデータを準備
-        /** @psalm-var User $user */
-        $user = User::factory()->create(['id' => 1]);
-        $this->assertInstanceOf(User::class, $user);
+        // Arrange: 無効なリクエストデータを準備
         $requestData = [];
 
         // Act: 無効なデータでスレッド作成APIを実行（リクエスト検証をスキップ）
-        $response = $this->withoutRequestValidation()->postJson('/threads', $requestData);
+        $response = $this->withoutRequestValidation()
+            ->actingAs($this->user)
+            ->postJson('/threads', $requestData);
 
         // Assert: バリデーションエラーが返されることを検証
         $response->assertStatus(422);
@@ -114,15 +115,14 @@ class PostActionTest extends TestCase
 
     public function testValidationErrorWhenTitleTooLong(): void
     {
-        // Arrange: Factory-Firstでユーザーを作成し、255文字を超えるタイトルを準備
-        /** @psalm-var User $user */
-        $user = User::factory()->create(['id' => 1]);
-        $this->assertInstanceOf(User::class, $user);
+        // Arrange: 255文字を超えるタイトルを準備
         $longTitle = str_repeat('a', 256); // 256文字（制限を1文字超える）
         $requestData = ['title' => $longTitle];
 
         // Act: 長すぎるタイトルでスレッド作成APIを実行（リクエスト検証をスキップ）
-        $response = $this->withoutRequestValidation()->postJson('/threads', $requestData);
+        $response = $this->withoutRequestValidation()
+            ->actingAs($this->user)
+            ->postJson('/threads', $requestData);
 
         // Assert: バリデーションエラーが返されることを検証
         $response->assertStatus(422);

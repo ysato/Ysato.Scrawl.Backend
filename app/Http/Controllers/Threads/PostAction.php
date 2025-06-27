@@ -18,30 +18,11 @@ class PostAction extends Controller
         $this->validateRequest($request);
 
         // Refactor: コードエクセレンス - 可読性と保守性向上
-        $user = $this->getCurrentUser();
+        $user = $request->user();
+        assert($user instanceof User);
         $thread = $this->createThread($user, $request);
 
         return $this->buildCreatedResponse($thread);
-    }
-
-    /**
-     * TODO: 認証システム実装後に修正
-     */
-    private function getCurrentUser(): User
-    {
-        $user = User::find(1);
-
-        if (! $user) {
-            abort(
-                response()->json([
-                    'title' => 'Unauthenticated.',
-                    'status' => 401,
-                    'detail' => 'Authentication is required to access this resource.',
-                ], 401)->header('Content-Type', 'application/problem+json')
-            );
-        }
-
-        return $user;
     }
 
     private function createThread(User $user, Request $request): Thread
