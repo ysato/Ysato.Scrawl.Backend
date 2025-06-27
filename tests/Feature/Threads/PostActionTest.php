@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Threads;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Date;
 use Override;
-use Tests\TestCase;
-use Ysato\Catalyst\ValidatesOpenApiSpec;
+use Tests\Feature\TestCase;
 
 use function assert;
 use function is_int;
@@ -17,9 +15,6 @@ use function str_repeat;
 
 class PostActionTest extends TestCase
 {
-    use RefreshDatabase;
-    use ValidatesOpenApiSpec;
-
     private User $user;
 
     #[Override]
@@ -27,7 +22,6 @@ class PostActionTest extends TestCase
     {
         parent::setUp();
 
-        // Red: 基準時刻を設定（タイムゾーン付きISO形式）
         // @link https://github.com/briannesbitt/Carbon/issues/2481
         Date::setTestNow('2024-01-01T12:00:00+09:00');
 
@@ -39,7 +33,6 @@ class PostActionTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        // Red: Date::setTestNow()のクリーンアップ
         Date::setTestNow();
 
         parent::tearDown();
@@ -56,7 +49,6 @@ class PostActionTest extends TestCase
         // Assert: スレッドが正常に作成されることを検証
         $response->assertStatus(201);
 
-        // Refactor: OpenAPI仕様の必須フィールド完全検証
         $threadId = $response->json('id');
         assert(is_int($threadId));
         $response->assertJsonPath('id', $threadId);
@@ -67,7 +59,6 @@ class PostActionTest extends TestCase
         $response->assertJsonPath('last_scratch_created_at', null);
         $response->assertJsonPath('last_closed_at', null);
 
-        // Refactor: Locationヘッダーの検証（OpenAPI仕様で必須）
         $response->assertHeader('Location', '/threads/' . $threadId);
 
         // データベースにスレッドが保存されていることを確認

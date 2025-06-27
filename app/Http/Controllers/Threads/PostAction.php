@@ -14,10 +14,8 @@ class PostAction extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        // Green: バリデーション実装
         $this->validateRequest($request);
 
-        // Refactor: コードエクセレンス - 可読性と保守性向上
         $user = $request->user();
         assert($user instanceof User);
         $thread = $this->createThread($user, $request);

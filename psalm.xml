@@ -21,11 +21,11 @@
                 <directory name="tests"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
-        <PossiblyUnusedMethod>
+        <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="tests"/>
             </errorLevel>
-        </PossiblyUnusedMethod>
+        </UnusedClass>
     </issueHandlers>
     <plugins>
         <pluginClass class="Psalm\LaravelPlugin\Plugin"/>

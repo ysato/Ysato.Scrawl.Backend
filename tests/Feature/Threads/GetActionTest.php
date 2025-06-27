@@ -6,25 +6,19 @@ namespace Tests\Feature\Threads;
 
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Date;
 use Override;
-use Tests\TestCase;
-use Ysato\Catalyst\ValidatesOpenApiSpec;
+use Tests\Feature\TestCase;
 
 use function now;
 
 class GetActionTest extends TestCase
 {
-    use RefreshDatabase;
-    use ValidatesOpenApiSpec;
-
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Red: 基準時刻を設定（タイムゾーン付きISO形式でPostActionTestと統一）
         // @link https://github.com/briannesbitt/Carbon/issues/2481
         Date::setTestNow('2024-01-01T12:00:00+09:00');
     }
@@ -32,7 +26,6 @@ class GetActionTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        // Red: Date::setTestNow()のクリーンアップ
         Date::setTestNow();
 
         parent::tearDown();
