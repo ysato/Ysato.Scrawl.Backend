@@ -24,6 +24,7 @@ class GetAction extends Controller
         return $this->responder->response($threads);
     }
 
+    /** @return CursorPaginator<int, Thread> */
     private function getThreadsWithRelations(): CursorPaginator
     {
         return Thread::with('user')

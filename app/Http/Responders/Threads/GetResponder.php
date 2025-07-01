@@ -16,6 +16,7 @@ class GetResponder
     {
     }
 
+    /** @param CursorPaginator<int, Thread> $threads */
     public function response(CursorPaginator $threads): JsonResponse
     {
         $self = null;

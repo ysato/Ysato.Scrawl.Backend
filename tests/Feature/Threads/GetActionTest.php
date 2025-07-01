@@ -8,7 +8,9 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Testing\TestResponse;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\TestCase;
@@ -116,7 +118,7 @@ class GetActionTest extends TestCase
         // Act1: 最初のページを取得してnextカーソルを取得
         $firstPageResponse = $this->getJson('/threads');
         $nextCursor = $firstPageResponse->json('next');
-        $this->assertNotNull($nextCursor);
+        $this->assertIsString($nextCursor);
 
         // Act2: nextカーソルを使って2ページ目を取得
         $secondPageResponse = $this->getJson($nextCursor);
@@ -130,8 +132,6 @@ class GetActionTest extends TestCase
         $this->assertThreadsOrderedByCreatedAtDesc($secondPageResponse);
     }
 
-    // ヘルパーメソッド
-
     private function createUser(): User
     {
         return User::factory()->create();
@@ -142,12 +142,13 @@ class GetActionTest extends TestCase
         return Thread::factory()->for($user)->create();
     }
 
+    /** @return Collection<int, Thread> */
     private function createThreadsWithTimestamps(User $user, int $count): Collection
     {
         return Thread::factory()
             ->for($user)
             ->count($count)
-            ->sequence(function (Sequence $sequence) {
+            ->sequence(static function (Sequence $sequence) {
                 Date::setTestNow(now()->addMinutes($sequence->index));
 
                 return [];
@@ -155,7 +156,8 @@ class GetActionTest extends TestCase
             ->createMany();
     }
 
-    private function assertThreadListItemContent($response, int $index, Thread $thread, User $user): void
+    /** @param TestResponse<JsonResponse> $response */
+    private function assertThreadListItemContent(TestResponse $response, int $index, Thread $thread, User $user): void
     {
         $response->assertJsonPath("items.{$index}.id", $thread->id);
         $response->assertJsonPath("items.{$index}.title", $thread->title);
@@ -164,7 +166,7 @@ class GetActionTest extends TestCase
         $response->assertJsonPath("items.{$index}.created_at", $thread->created_at->toIso8601String());
         $response->assertJsonPath(
             "items.{$index}.last_scratch_created_at",
-            $thread->last_scratch_created_at?->toIso8601String()
+            $thread->last_scratch_created_at?->toIso8601String(),
         );
         $response->assertJsonPath("items.{$index}.last_closed_at", $thread->last_closed_at?->toIso8601String());
         $response->assertJsonPath("items.{$index}.scratches_count", 0);
@@ -172,14 +174,18 @@ class GetActionTest extends TestCase
         $response->assertJsonPath("items.{$index}.user.name", $user->name);
     }
 
-    private function assertThreadsOrderedByCreatedAtDesc($response): void
+    /** @param TestResponse<JsonResponse> $response */
+    private function assertThreadsOrderedByCreatedAtDesc(TestResponse $response): void
     {
+        /** @var array<array{created_at: string}> $items */
         $items = $response->json('items');
 
         collect($items)
             ->sliding()
-            ->each(function ($pair) use ($items) {
+            ->each(function ($pair) {
+                /** @var array{created_at: string} $current */
                 $current = $pair->first();
+                /** @var array{created_at: string} $next */
                 $next = $pair->last();
 
                 $this->assertGreaterThanOrEqual($next['created_at'], $current['created_at']);
