@@ -8,11 +8,11 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Testing\TestResponse;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\TestCase;
 
 use function collect;
@@ -134,12 +134,18 @@ class GetActionTest extends TestCase
 
     private function createUser(): User
     {
-        return User::factory()->create();
+        /** @psalm-var User $user */
+        $user = User::factory()->create();
+
+        return $user;
     }
 
     private function createThreadForUser(User $user): Thread
     {
-        return Thread::factory()->for($user)->create();
+        /** @psalm-var Thread $thread */
+        $thread = Thread::factory()->for($user)->create();
+
+        return $thread;
     }
 
     /** @return Collection<int, Thread> */
@@ -156,7 +162,7 @@ class GetActionTest extends TestCase
             ->createMany();
     }
 
-    /** @param TestResponse<JsonResponse> $response */
+    /** @param TestResponse<Response> $response */
     private function assertThreadListItemContent(TestResponse $response, int $index, Thread $thread, User $user): void
     {
         $response->assertJsonPath("items.{$index}.id", $thread->id);
@@ -174,7 +180,7 @@ class GetActionTest extends TestCase
         $response->assertJsonPath("items.{$index}.user.name", $user->name);
     }
 
-    /** @param TestResponse<JsonResponse> $response */
+    /** @param TestResponse<Response> $response */
     private function assertThreadsOrderedByCreatedAtDesc(TestResponse $response): void
     {
         /** @var array<array{created_at: string}> $items */
