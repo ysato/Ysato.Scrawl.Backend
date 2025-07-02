@@ -15,6 +15,7 @@ class GetActionTest extends TestCase
     public function スレッドが存在する場合は詳細データを返す(): void
     {
         // Arrange: Factory-Firstでテストデータを作成
+        /** @psalm-var User $user */
         $user = User::factory()->create();
         $thread = Thread::factory()->for($user)->create();
 
