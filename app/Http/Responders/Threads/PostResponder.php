@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Responders\Threads;
 
 use App\Models\Thread;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\ResponseFactory;
 
 class PostResponder
 {
