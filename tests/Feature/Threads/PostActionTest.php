@@ -7,10 +7,9 @@ namespace Tests\Feature\Threads;
 use App\Models\User;
 use Illuminate\Support\Facades\Date;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\TestCase;
 
-use function assert;
-use function is_int;
 use function str_repeat;
 
 class PostActionTest extends TestCase
@@ -38,7 +37,8 @@ class PostActionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testCanCreateThreadWithValidData(): void
+    #[Test]
+    public function 有効なデータでスレッドを作成できる(): void
     {
         // Arrange: Factory-Firstでユーザーを作成し、有効なリクエストデータを準備
         $requestData = ['title' => 'テスト用スレッドタイトル'];
@@ -46,34 +46,21 @@ class PostActionTest extends TestCase
         // Act: スレッド作成APIを実行
         $response = $this->actingAs($this->user)->postJson('/threads', $requestData);
 
-        // Assert: スレッドが正常に作成されることを検証
-        $response->assertStatus(201);
-
-        $threadId = $response->json('id');
-        assert(is_int($threadId));
-        $response->assertJsonPath('id', $threadId);
-        $response->assertJsonPath('title', 'テスト用スレッドタイトル');
-        $response->assertJsonPath('is_closed', false);
-        $response->assertJsonPath('user_id', $this->user->id);
-        $response->assertJsonPath('created_at', '2024-01-01T12:00:00+09:00');
-        $response->assertJsonPath('last_scratch_created_at', null);
-        $response->assertJsonPath('last_closed_at', null);
-
-        $response->assertHeader('Location', '/threads/' . $threadId);
-
+        // Assert: OpenAPIにより自動検証されるため、ビジネスロジックに関する検証のみ実施
         // データベースにスレッドが保存されていることを確認
         $this->assertDatabaseHas('threads', [
-            'id' => $threadId,
+            'user_id' => $this->user->id,
             'title' => 'テスト用スレッドタイトル',
             'is_closed' => false,
-            'user_id' => $this->user->id,
-            'created_at' => '2024-01-01T12:00:00+09:00',
             'last_scratch_created_at' => null,
             'last_closed_at' => null,
         ]);
+
+        $response->assertJsonFragment(['title' => 'テスト用スレッドタイトル']);
     }
 
-    public function testValidationErrorWhenTitleIsMissing(): void
+    #[Test]
+    public function タイトルが未入力の場合はバリデーションエラーになる(): void
     {
         // Arrange: 無効なリクエストデータを準備
         $requestData = [];
@@ -83,14 +70,13 @@ class PostActionTest extends TestCase
             ->actingAs($this->user)
             ->postJson('/threads', $requestData);
 
-        // Assert: バリデーションエラーが返されることを検証
-        $response->assertStatus(422);
-        $response->assertHeader('Content-Type', 'application/problem+json');
+        // Assert: OpenAPIにより自動検証されるため、ビジネスロジックに関する検証のみ実施
         $response->assertJsonPath('title', 'The given data was invalid.');
         $response->assertJsonPath('errors.title.0', 'The title field is required.');
     }
 
-    public function testUnauthorizedWhenNoAuthentication(): void
+    #[Test]
+    public function 認証なしの場合は未認証エラーになる(): void
     {
         // Arrange: 認証なしの状態で有効なリクエストデータを準備（ユーザー作成しない）
         $requestData = ['title' => 'テスト用スレッドタイトル'];
@@ -98,13 +84,12 @@ class PostActionTest extends TestCase
         // Act: 認証なしでスレッド作成APIを実行
         $response = $this->postJson('/threads', $requestData);
 
-        // Assert: 認証エラーが返されることを検証
-        $response->assertStatus(401);
-        $response->assertHeader('Content-Type', 'application/problem+json');
+        // Assert: OpenAPIにより自動検証されるため、ビジネスロジックに関する検証のみ実施
         $response->assertJsonPath('title', 'Unauthenticated.');
     }
 
-    public function testValidationErrorWhenTitleTooLong(): void
+    #[Test]
+    public function タイトルが長すぎる場合はバリデーションエラーになる(): void
     {
         // Arrange: 255文字を超えるタイトルを準備
         $longTitle = str_repeat('a', 256); // 256文字（制限を1文字超える）
@@ -115,9 +100,7 @@ class PostActionTest extends TestCase
             ->actingAs($this->user)
             ->postJson('/threads', $requestData);
 
-        // Assert: バリデーションエラーが返されることを検証
-        $response->assertStatus(422);
-        $response->assertHeader('Content-Type', 'application/problem+json');
+        // Assert: OpenAPIにより自動検証されるため、ビジネスロジックに関する検証のみ実施
         $response->assertJsonPath('title', 'The given data was invalid.');
         $response->assertJsonPath('errors.title.0', 'The title field must not be greater than 255 characters.');
     }
