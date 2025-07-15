@@ -31,3 +31,4 @@ Thumbs.db
 /.phpcs-cache
 .phpstorm.meta.php
 _ide_helper.php
+/build

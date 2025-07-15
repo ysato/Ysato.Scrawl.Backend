@@ -13380,16 +13380,16 @@
         },
         {
             "name": "ysato/catalyst",
-            "version": "2.2.7",
+            "version": "2.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ysato/Ysato.Catalyst.git",
-                "reference": "1c501268b1bf5f4b14c27361694d1713a14eed61"
+                "reference": "ab1628968429e46968b75d54316beba33f1ea99a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ysato/Ysato.Catalyst/zipball/1c501268b1bf5f4b14c27361694d1713a14eed61",
-                "reference": "1c501268b1bf5f4b14c27361694d1713a14eed61",
+                "url": "https://api.github.com/repos/ysato/Ysato.Catalyst/zipball/ab1628968429e46968b75d54316beba33f1ea99a",
+                "reference": "ab1628968429e46968b75d54316beba33f1ea99a",
                 "shasum": ""
             },
             "require": {
@@ -13447,9 +13447,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ysato/Ysato.Catalyst/issues",
-                "source": "https://github.com/ysato/Ysato.Catalyst/tree/2.2.7"
+                "source": "https://github.com/ysato/Ysato.Catalyst/tree/2.2.8"
             },
-            "time": "2025-06-25T23:38:07+00:00"
+            "time": "2025-07-15T05:07:10+00:00"
         }
     ],
     "aliases": [],
