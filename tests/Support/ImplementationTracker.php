@@ -7,8 +7,6 @@ namespace Tests\Support;
 use cebe\openapi\spec\OpenApi;
 use League\OpenAPIValidation\PSR7\PathFinder;
 
-use function array_filter;
-use function array_values;
 use function strtolower;
 
 class ImplementationTracker
@@ -40,40 +38,6 @@ class ImplementationTracker
     public function hasImplementedStates(): bool
     {
         return ! empty($this->implementedStates);
-    }
-
-    /**
-     * @param array<string, EndpointState> $expectedStates
-     *
-     * @return array<EndpointState>
-     */
-    public function getMissingStates(array $expectedStates): array
-    {
-        return array_values(
-            array_filter(
-                $expectedStates,
-                fn(EndpointState $state) => ! $this->isImplemented($state),
-            )
-        );
-    }
-
-    /** @param array<string, EndpointState> $expectedStates */
-    public function createStatus(array $expectedStates): ImplementationStatus
-    {
-        $implementedStates = array_values(
-            array_filter(
-                $expectedStates,
-                fn(EndpointState $state) => $this->isImplemented($state),
-            )
-        );
-
-        $missingStates = $this->getMissingStates($expectedStates);
-
-        return new ImplementationStatus(
-            array_values($expectedStates),
-            $implementedStates,
-            $missingStates,
-        );
     }
 
     /**

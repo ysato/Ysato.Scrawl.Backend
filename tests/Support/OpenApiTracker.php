@@ -62,19 +62,23 @@ class OpenApiTracker
     public function displayImplementationStatus(): void
     {
         $expectedStates = $this->extractor->extractStates();
-        $status = $this->tracker->createStatus($expectedStates);
 
-        $this->renderStatusTable($status);
+        $this->renderStatusTable($expectedStates);
     }
 
-    protected function renderStatusTable(ImplementationStatus $status): void
+    /**
+     * @param array<string, EndpointState> $expectedStates
+     *
+     * @return void
+     */
+    protected function renderStatusTable(array $expectedStates): void
     {
         $output = new ConsoleOutput();
         $table = new Table($output);
 
         $table->setHeaders(['STATUS', 'METHOD', 'ENDPOINT', 'RESPONSE']);
 
-        foreach ($status->expectedStates as $state) {
+        foreach ($expectedStates as $state) {
             $isImplemented = $this->tracker->isImplemented($state);
             $statusIcon = $isImplemented ? '✅' : '❌';
 
