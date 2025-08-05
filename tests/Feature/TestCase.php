@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response;
-use Tests\Support\FollowsOpenApiSpec;
+use Ysato\Catalyst\OpenApiSpecFollower\FollowsOpenApiSpec;
 use Ysato\Catalyst\ValidatesOpenApiSpec;
 
 abstract class TestCase extends \Tests\TestCase

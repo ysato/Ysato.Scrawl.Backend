@@ -18,7 +18,7 @@
         </include>
     </source>
     <extensions>
-        <bootstrap class="Tests\Extensions\OpenApiStatusExtension"/>
+        <bootstrap class="Ysato\Catalyst\OpenApiSpecFollower\Extensions\FollowsOpenApiSpecExtension"/>
     </extensions>
     <php>
         <env name="APP_ENV" value="testing"/>

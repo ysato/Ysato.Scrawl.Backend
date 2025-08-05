@@ -82,7 +82,8 @@
         "tests": [
             "@lints",
             "@test"
-        ]
+        ],
+        "follow": "OPENAPI_FOLLOW_REPORT=true ./vendor/bin/phpunit --no-progress --no-results"
     },
     "extra": {
         "laravel": {
